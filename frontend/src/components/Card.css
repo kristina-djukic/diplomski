@@ -1,0 +1,78 @@
+/* Card.css */
+
+/* Make each card fluid but never too wide */
+.player-card {
+    width: 100%;
+    max-width: 700px;         /* same max as welcome card */
+    margin: 0 auto;           /* center in its container */
+    padding: clamp(1rem, 2vw, 2rem);
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+  
+  /* Card title & artist */
+  .player-card h3 {
+    font-size: clamp(1.25rem, 3vw, 2rem);
+    margin-bottom: 0.5rem;
+  }
+  
+  .player-card h5 {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    margin-bottom: 1rem;
+    color: #6c757d;  /* Bootstrap “text-muted” */
+  }
+  
+  /* Ensure the video iframe never overflows */
+  .player-card .ratio-16x9 {
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  /* Make inputs and selects fill the card nicely */
+  .player-card .btn-group,
+  .player-card .form-select,
+  .player-card .btn {
+    width: 100%;
+  }
+  
+  /* Responsive padding & gap tweaks */
+  @media (max-width: 768px) {
+    .player-card {
+      padding: clamp(0.75rem, 3vw, 1.5rem);
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .player-card {
+      padding: 1rem;
+    }
+  }
+
+.player-card .ratio-16x9 {
+    overflow: hidden;               /* so the rounding clips the iframe */
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  }
+  
+  /* make labels a bit smaller */
+.small-label {
+    font-size: .85rem;
+    margin-bottom: .25rem;
+  }
+  
+  /* tighten up the inline form-checks */
+  .form-check-inline {
+    margin-right: .5rem;
+  }
+  
+  /* shrink stars slightly */
+  .star-rating-small {
+    font-size: 1.4rem !important;
+  }
+  
+  /* shrink video on small cards if you applied embed-container-small */
+  .embed-container-small {
+    padding-top: 50%;  /* slightly less tall */
+  }
+  

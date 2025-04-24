@@ -1,0 +1,76 @@
+/* WelcomeCard.css */
+
+.welcome-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 4rem 1rem;
+
+  background-color: rgba(114, 110, 110, 0.227);
+  min-height: 100vh;
+}
+
+.welcome-card p {
+  text-align: justify;
+  text-justify: inter-word;
+}
+
+.welcome-card {
+  /* always full width up to 700px */
+  width: 100%;
+  max-width: 700px;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  background-color: white;
+  max-width: 600px;
+}
+
+/* fluid, responsive font sizes */
+.welcome-card h1 {
+  font-size: clamp(1.75rem, 5vw, 2.5rem);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.welcome-card p {
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+/* Large button scales fluidly too */
+.welcome-card .btn-lg {
+  padding: clamp(0.5rem, 1.5vw, 1rem) clamp(1rem, 3vw, 2rem);
+  font-size: clamp(1rem, 2vw, 1.25rem);
+}
+
+/* ===== Media queries for extra polish ===== */
+
+/* Tablet and below */
+@media (max-width: 768px) {
+  .welcome-container {
+    padding: 3rem 1rem;
+  }
+  .welcome-card {
+    padding: 1.5rem;
+  }
+}
+
+/* Phone screens */
+@media (max-width: 576px) {
+  .welcome-container {
+    padding: 2rem 0.5rem;
+  }
+  .welcome-card {
+    padding: 1rem;
+  }
+  .welcome-card p {
+    margin-bottom: 0.75rem;
+  }
+  .welcome-card .btn-lg {
+    width: 100%;
+  }
+}
+
+

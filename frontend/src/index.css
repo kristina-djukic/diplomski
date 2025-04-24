@@ -1,0 +1,42 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* index.css */
+
+/* Base font scaling across the entire app */
+html {
+  font-size: clamp(14px, 1.25vw, 16px);
+}
+
+/* Center your .container and add breathing room */
+.container {
+  max-width: 100%;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Utility to vertically center content if needed */
+.d-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+html, body, #root {
+  height: 100%;
+  background-color:rgba(114, 110, 110, 0.227) /* your pale teal */
+}

@@ -1,12 +1,12 @@
 // src/components/SongCard.js
 import React, { useState } from 'react';
-import Select from 'react-select';
 import axios from 'axios';
 import './Card.css';
 
 export default function SongCard({ song, emotions, participantId }) {
-  const [knows, setKnows] = useState(true);
+  const [knows, setKnows] = useState(null);
   const [score, setScore] = useState(0);
+  const [hoverScore, setHoverScore] = useState(0);
   const [selectedEmotion, setSelectedEmotion] = useState(null);
 
   // build embed URL
@@ -39,55 +39,36 @@ export default function SongCard({ song, emotions, participantId }) {
   };
 
   // record emotion
-  const onEmotionChange = (opt) => {
-    setSelectedEmotion(opt);
-    const id = opt ? opt.value : null;
+  const onEmotionChange = (e) => {
+    const id = parseInt(e.target.value, 10);
+    setSelectedEmotion(id);
     axios.post('/song_emotions', {
       participant_id: participantId,
       song_id: song.id,
-      emotions: id !== null ? [id] : [],
+      emotions: [id],
     }).catch(console.error);
   };
 
-  // prepare dropdown options
-  const emotionOptions = emotions.map(e => ({
-    value: e.id,
-    label: e.name,
-  }));
-
-  // Updated StarRating with inline styling
-  const StarRating = ({ value, onChange }) => (
-    <div
-      style={{
-        fontSize: '3rem',        // much bigger stars
-        margin: '0.5rem 0',
-        userSelect: 'none',
-        display: 'inline-flex'
-      }}
-    >
-      {[1, 2, 3, 4, 5].map(n => (
-        <span
-          key={n}
-          onClick={() => onChange(n)}
-          style={{
-            cursor: 'pointer',
-            color: n <= value ? '#ffd700' : '#ccc', 
-            marginRight: '6px',
-            transition: 'color 0.2s'
-          }}
-        >
-          {n <= value ? '★' : '☆'}
-        </span>
-      ))}
-    </div>
-  );
+  // helper to split labels on slash
+  const renderLabel = (name) => {
+    if (name.includes('/')) {
+      const [a, b] = name.split('/');
+      return (
+        <>
+          {a}/<br />
+          {b}
+        </>
+      );
+    }
+    return name;
+  };
 
   return (
     <div className="player-card p-4">
       <div className="row g-4 align-items-center">
-        {/* video takes 7/12 on md+ */}
-        <div className="col-12 col-md-7">
-          <div className="ratio ratio-16x9 embed-container">
+        {/* video */}
+        <div className="col-12 col-md-6">
+          <div className="ratio ratio-16x9">
             <iframe
               src={embedUrl}
               title={song.title}
@@ -98,52 +79,112 @@ export default function SongCard({ song, emotions, participantId }) {
         </div>
 
         {/* controls */}
-        <div className="col-12 col-md-5">
-          <div className="card-header mb-3">
-            <h3 className="mb-1">{song.title}</h3>
-            <small className="text-muted">{song.artist}</small>
-          </div>
+        <div className="col-12 col-md-6">
+          <h3>{song.title}</h3>
+          <h5 className="text-muted">{song.artist}</h5>
 
-          {/* Know? */}
+          {/* Know */}
           <div className="mb-3">
-            <label className="form-label">Did you know this song before?</label>
+            <label className="form-label">Did you know this song?</label>
             <div className="btn-group w-100">
-              <button
-                className={`btn btn-outline-primary ${knows ? 'active' : ''}`}
-                onClick={() => onKnow(true)}
-              >Yes</button>
-              <button
-                className={`btn btn-outline-primary ${!knows ? 'active' : ''}`}
-                onClick={() => onKnow(false)}
-              >No</button>
-            </div>
+  <button
+    className="btn btn-outline-primary"
+    onClick={() => onKnow(true)}
+    style={{
+      color: knows === true ? '#fff' : '#000', // Black text initially
+      backgroundColor: knows === true ? '#16a2b9' : 'transparent', // Blue background when selected
+      borderColor: '#000', // Black border initially
+    }}
+    onMouseOver={(e) => {
+      e.target.style.color = '#fff'; // White text on hover
+      e.target.style.backgroundColor = '#16a2b9'; // Blue background on hover
+    }}
+    onMouseOut={(e) => {
+      if (knows !== true) {
+        e.target.style.color = '#000'; // Revert to black text if not selected
+        e.target.style.backgroundColor = 'transparent'; // Revert to transparent background if not selected
+      }
+    }}
+  >
+    Yes
+  </button>
+  <button
+    className="btn btn-outline-primary"
+    onClick={() => onKnow(false)}
+    style={{
+      color: knows === false ? '#fff' : '#000', // Black text initially
+      backgroundColor: knows === false ? '#16a2b9' : 'transparent', // Blue background when selected
+      borderColor: '#000', // Black border initially
+    }}
+    onMouseOver={(e) => {
+      e.target.style.color = '#fff'; // White text on hover
+      e.target.style.backgroundColor = '#16a2b9'; // Blue background on hover
+    }}
+    onMouseOut={(e) => {
+      if (knows !== false) {
+        e.target.style.color = '#000'; // Revert to black text if not selected
+        e.target.style.backgroundColor = 'transparent'; // Revert to transparent background if not selected
+      }
+    }}
+  >
+    No
+  </button>
+</div>
           </div>
 
           {/* Rating */}
-          <div className="mb-3">
+          <div className="mb-3 rating-row">
             <label className="form-label">Rate this song:</label>
-            <StarRating value={score} onChange={onStarClick} />
+            <div
+              className="star-rating"
+              onMouseLeave={() => setHoverScore(0)}
+              style={{ fontSize: '3rem', userSelect: 'none' }}
+            >
+              {[1, 2, 3, 4, 5].map((n) => (
+                <span
+                  key={n}
+                  onMouseEnter={() => setHoverScore(n)}
+                  onClick={() => onStarClick(n)}
+                  style={{
+                    cursor: 'pointer',
+                    color: (hoverScore || score) >= n ? '#ffd700' : '#ccc',
+                    marginRight: '4px',
+                  }}
+                >
+                  ★
+                </span>
+              ))}
+            </div>
           </div>
 
-          {/* Emotion */}
+          {/* Emotions */}
           <div className="mb-3">
-           <label className="form-label">Select one emotion this song evoked:</label>
-            <div className="row row-cols-2 row-cols-md-3 g-2">
-              {emotionOptions.map(opt => (
-                <div className="col" key={opt.value}>
-                  <button
-                    type="button"
-                    className={`btn btn-outline-primary btn-sm w-100 ${
-                      selectedEmotion?.value === opt.value ? 'active' : ''
-                    }`}
-                    onClick={() => onEmotionChange(opt)}
+            <label className="form-label small-label">
+              Select one emotion that this song evoked in you:
+            </label>
+            <div className="emotion-grid">
+              {emotions.map(e => (
+                <div className="form-check" key={e.id}>
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name={`emotion-${song.id}`}
+                    id={`emotion-${song.id}-${e.id}`}
+                    value={e.id}
+                    checked={selectedEmotion === e.id}
+                    onChange={onEmotionChange}
+                  />
+                  <label
+                    className="form-check-label"
+                    htmlFor={`emotion-${song.id}-${e.id}`}
                   >
-                    {opt.label}
-                  </button>
+                    {renderLabel(e.name)}
+                  </label>
                 </div>
               ))}
             </div>
           </div>
+
         </div>
       </div>
     </div>

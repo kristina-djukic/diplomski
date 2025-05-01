@@ -1,4 +1,3 @@
-// src/components/SongsPage.js
 import React, { useState, useEffect } from 'react'
 import axios      from 'axios'
 import SongCard   from './SongCard'
@@ -16,51 +15,42 @@ export default function SongsPage({
   const [page,       setPage]       = useState(1)
   const [totalPages, setTotalPages] = useState(1)
 
-  // load emotions once
-  useEffect(() => {
-    axios.get('/emotions').then(r => setEmotions(r.data))
-  }, [])
+  useEffect(()=>{
+    axios.get('/emotions').then(r=>setEmotions(r.data))
+  },[])
 
-  // load songs for current page
-  useEffect(() => {
+  useEffect(()=>{
     axios.get(`/songs?page=${page}`)
-      .then(r => {
+      .then(r=>{
         setSongs(r.data.songs)
         setTotalPages(r.data.totalPages)
       })
       .catch(console.error)
-  }, [page])
+  },[page])
 
-  // per‐page completion check
-  const allOnPageAnswered = songs.length > 0 && songs.every(s => {
-    const r = initialResponses[s.id] || {}
-    return r.knows   !== null &&
-           r.score   >  0    &&
-           r.emotion !== null
+  // complete check for THIS page
+  const allThisPage = songs.length>0 && songs.every(s=>{
+    const r = initialResponses[s.id]||{}
+    return r.knows!==null && r.score>0 && r.emotion!==null
   })
 
-  // global completion check
-  // assume 10 songs per page
-  const totalRequired = totalPages * 10
-  const globalAnsweredCount = Object.values(initialResponses)
-    .filter(r =>
-      r.knows   !== null &&
-      r.score   >  0    &&
-      r.emotion !== null
-    ).length
+  // total songs count = totalPages*10
+  const totalNeeded = totalPages*10
+  const answeredCount = Object.values(initialResponses)
+    .filter(r=> r.knows!==null && r.score>0 && r.emotion!==null)
+    .length
 
-  const changePage = np => {
-    if (np > page && !allOnPageAnswered) {
+  const goPage = np => {
+    if (np>page && !allThisPage) {
       alert('Please finish all songs on this page before moving on.')
       return
     }
     setPage(np)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    window.scrollTo({ top:0, behavior:'smooth' })
   }
 
   return (
     <div className="container py-5">
-
       <button className="btn btn-link mb-3" onClick={onBack}>
         ← Back to questions
       </button>
@@ -74,21 +64,21 @@ export default function SongsPage({
         <Pagination
           currentPage={page}
           totalPages={totalPages}
-          onPageChange={changePage}
+          onPageChange={goPage}
         />
       </div>
 
       <div className="row g-4">
-        {songs.map(song => (
+        {songs.map(song=>(
           <div className="col-12" key={song.id}>
             <SongCard
               song={song}
               emotions={emotions}
               participantId={participantId}
-              initialResponse={initialResponses[song.id] || {
+              initialResponse={initialResponses[song.id]||{
                 knows: null, score: 0, emotion: null
               }}
-              onAnswer={(id, ans) => onAnswer(id, ans)}
+              onAnswer={onAnswer}
             />
           </div>
         ))}
@@ -98,15 +88,14 @@ export default function SongsPage({
         <Pagination
           currentPage={page}
           totalPages={totalPages}
-          onPageChange={changePage}
+          onPageChange={goPage}
         />
       </div>
 
-      {/* Always‐visible Submit All button */}
       <div className="d-flex justify-content-center mt-5">
         <button
           className="btn btn-success btn-lg"
-          disabled={globalAnsweredCount < totalRequired}
+          disabled={answeredCount < totalNeeded}
           onClick={onSubmitAll}
         >
           Submit all

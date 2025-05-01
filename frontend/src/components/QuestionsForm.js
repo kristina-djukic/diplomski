@@ -1,5 +1,4 @@
 import React from 'react'
-import axios from 'axios'
 import './QuestionsForm.css'
 
 const SCALE_LABELS = {
@@ -9,7 +8,7 @@ const SCALE_LABELS = {
   4: 'Neither Agree Nor Disagree',
   5: 'Agree',
   6: 'Strongly Agree',
-  7: 'Completely Agree',
+  7: 'Completely Agree'
 }
 
 export default function QuestionsForm({ formData, onChange, onContinue }) {
@@ -20,25 +19,11 @@ export default function QuestionsForm({ formData, onChange, onContinue }) {
     formData.daily_practice_years &&
     formData.formal_training_years &&
     formData.music_theory_years &&
-    formData.not_musician_agreement  !== null &&
-    formData.talk_emotions_ability   !== null &&
-    formData.trigger_shivers         !== null &&
-    formData.rare_emotions           !== null &&
-    formData.music_motivation        !== null
-
-  const handleContinue = async () => {
-    if (!allFilled) {
-      alert('Please fill in all fields before continuing.')
-      return
-    }
-    try {
-      const { data } = await axios.post('/participants', formData)
-      onContinue(data.participant_id)
-    } catch (err) {
-      console.error(err)
-      alert('Failed to save. Please try again.')
-    }
-  }
+    formData.not_musician_agreement   !== null &&
+    formData.talk_emotions_ability    !== null &&
+    formData.trigger_shivers          !== null &&
+    formData.rare_emotions            !== null &&
+    formData.music_motivation         !== null
 
   const renderScale = (key, label) => (
     <div className="qf-group" key={key}>
@@ -71,14 +56,13 @@ export default function QuestionsForm({ formData, onChange, onContinue }) {
       </div>
 
       <div className="questions-card">
-        {/** 1: daily practice **/}
+        {/* #1 */}
         <div className="qf-group">
           <label className="qf-label">
             I engaged in regular, daily practice of an instrument (incl. voice) for:
           </label>
           <select
             className="qf-select"
-            name="daily_practice_years"
             value={formData.daily_practice_years}
             onChange={e => onChange('daily_practice_years', e.target.value)}
           >
@@ -87,14 +71,13 @@ export default function QuestionsForm({ formData, onChange, onContinue }) {
           </select>
         </div>
 
-        {/** 2: formal training **/}
+        {/* #2 */}
         <div className="qf-group">
           <label className="qf-label">
             I have had formal training on an instrument (incl. voice) for:
           </label>
           <select
             className="qf-select"
-            name="formal_training_years"
             value={formData.formal_training_years}
             onChange={e => onChange('formal_training_years', e.target.value)}
           >
@@ -103,14 +86,13 @@ export default function QuestionsForm({ formData, onChange, onContinue }) {
           </select>
         </div>
 
-        {/** 3: music theory **/}
+        {/* #3 */}
         <div className="qf-group">
           <label className="qf-label">
             I have had formal training in music theory for:
           </label>
           <select
             className="qf-select"
-            name="music_theory_years"
             value={formData.music_theory_years}
             onChange={e => onChange('music_theory_years', e.target.value)}
           >
@@ -119,17 +101,32 @@ export default function QuestionsForm({ formData, onChange, onContinue }) {
           </select>
         </div>
 
-        {/** 4–8: five 1–7 scales **/}
-        {renderScale('not_musician_agreement', 'I would not consider myself a musician.')}
-        {renderScale('talk_emotions_ability', 'I am able to talk about the emotions that a piece of music evokes for me.')}
-        {renderScale('trigger_shivers', 'I sometimes choose music that can trigger shivers down my spine.')}
-        {renderScale('rare_emotions', 'Pieces of music rarely evoke emotions for me.')}
-        {renderScale('music_motivation', 'I often pick certain music to motivate or excite me.')}
+        {/* #4–#8 */}
+        {renderScale(
+          'not_musician_agreement',
+          'I would not consider myself a musician.'
+        )}
+        {renderScale(
+          'talk_emotions_ability',
+          'I am able to talk about the emotions that a piece of music evokes for me.'
+        )}
+        {renderScale(
+          'trigger_shivers',
+          'I sometimes choose music that can trigger shivers down my spine.'
+        )}
+        {renderScale(
+          'rare_emotions',
+          'Pieces of music rarely evoke emotions for me.'
+        )}
+        {renderScale(
+          'music_motivation',
+          'I often pick certain music to motivate or excite me.'
+        )}
 
         <button
           className="btn btn-info btn-lg"
           style={{ width: '100%', marginTop: '3rem' }}
-          onClick={handleContinue}
+          onClick={onContinue}
         >
           Continue to songs
         </button>

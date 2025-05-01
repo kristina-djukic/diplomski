@@ -18,27 +18,16 @@ export default function App() {
     rare_emotions:          null,
     music_motivation:       null
   })
-  const [participantId, setParticipantId] = useState(null)
   const [songResponses, setSongResponses] = useState({})
 
-  // field‐by‐field update from QuestionsForm
   const handleFormChange = (key, val) => {
     setFormData(fd => ({ ...fd, [key]: val }))
   }
 
-  // when QuestionsForm is complete → POST /participants → move to songs
-  const handleFormContinue = async () => {
-    try {
-      const { data } = await axios.post('/participants', formData)
-      setParticipantId(data.participant_id)
-      setStep(2)
-    } catch (err) {
-      console.error(err)
-      alert('Failed to save your info. Please try again.')
-    }
+  const handleFormContinue = () => {
+    setStep(2)
   }
 
-  // collect answers from each SongCard
   const handleSongAnswer = (songId, ans) => {
     setSongResponses(sr => ({
       ...sr,
@@ -46,23 +35,50 @@ export default function App() {
     }))
   }
 
-  // back button from songs → questions
   const handleBackToQuestions = () => {
     setStep(1)
   }
 
-  // submit all button clicked
-  const handleSubmitAll = () => {
-    // all the per‐song endpoints already fired as you answered each card,
-    // so here we only advance to ThankYou
+  const handleSubmitAll = async () => {
+    // Create participant
+    let pid
+    try {
+      const { data } = await axios.post('/participants', formData)
+      pid = data.participant_id
+    } catch {
+      alert('Failed to save your info. Please try again.')
+      return
+    }
+
+    // Flush all song responses
+    for (const [songId, { knows, score, emotion }] of Object.entries(songResponses)) {
+      try {
+        await axios.post('/knowledge', {
+          participant_id: pid,
+          song_id: Number(songId),
+          knows_song: knows ? 1 : 0
+        })
+        await axios.put('/ratings', {
+          participant_id: pid,
+          song_id: Number(songId),
+          score
+        })
+        await axios.post('/song_emotions', {
+          participant_id: pid,
+          song_id: Number(songId),
+          emotions: [emotion]
+        })
+      } catch {
+        console.error('Failed to save song', songId)
+      }
+    }
+
     setStep(3)
   }
 
   return (
     <>
-      {step === 0 && (
-        <Welcome onStart={() => setStep(1)} />
-      )}
+      {step === 0 && <Welcome onStart={() => setStep(1)} />}
 
       {step === 1 && (
         <QuestionsForm
@@ -74,7 +90,7 @@ export default function App() {
 
       {step === 2 && (
         <SongsPage
-          participantId={participantId}
+          participantId={null /* not used until Submit All */}
           initialResponses={songResponses}
           onAnswer={handleSongAnswer}
           onBack={handleBackToQuestions}
@@ -82,9 +98,7 @@ export default function App() {
         />
       )}
 
-      {step === 3 && (
-        <ThankYou id={participantId} />
-      )}
+      {step === 3 && <ThankYou />}
     </>
   )
 }

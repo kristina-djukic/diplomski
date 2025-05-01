@@ -56,10 +56,9 @@ export default function QuestionsForm({ formData, onChange, onContinue }) {
       </div>
 
       <div className="questions-card">
-        {/* #1 */}
         <div className="qf-group">
           <label className="qf-label">
-            I engaged in regular, daily practice of an instrument (incl. voice) for:
+            I engaged in regular, daily practice … for:
           </label>
           <select
             className="qf-select"
@@ -67,14 +66,13 @@ export default function QuestionsForm({ formData, onChange, onContinue }) {
             onChange={e => onChange('daily_practice_years', e.target.value)}
           >
             <option value="" disabled>— select years —</option>
-            {yearsOpts.map(y => <option key={y} value={y}>{y} years</option>)}
+            {yearsOpts.map(y=> <option key={y} value={y}>{y} years</option>)}
           </select>
         </div>
 
-        {/* #2 */}
         <div className="qf-group">
           <label className="qf-label">
-            I have had formal training on an instrument (incl. voice) for:
+            I have had formal training on an instrument … for:
           </label>
           <select
             className="qf-select"
@@ -82,11 +80,10 @@ export default function QuestionsForm({ formData, onChange, onContinue }) {
             onChange={e => onChange('formal_training_years', e.target.value)}
           >
             <option value="" disabled>— select years —</option>
-            {yearsOpts.map(y => <option key={y} value={y}>{y} years</option>)}
+            {yearsOpts.map(y=> <option key={y} value={y}>{y} years</option>)}
           </select>
         </div>
 
-        {/* #3 */}
         <div className="qf-group">
           <label className="qf-label">
             I have had formal training in music theory for:
@@ -97,36 +94,26 @@ export default function QuestionsForm({ formData, onChange, onContinue }) {
             onChange={e => onChange('music_theory_years', e.target.value)}
           >
             <option value="" disabled>— select years —</option>
-            {theoryOpts.map(y => <option key={y} value={y}>{y} years</option>)}
+            {theoryOpts.map(y=> <option key={y} value={y}>{y} years</option>)}
           </select>
         </div>
 
-        {/* #4–#8 */}
-        {renderScale(
-          'not_musician_agreement',
-          'I would not consider myself a musician.'
-        )}
-        {renderScale(
-          'talk_emotions_ability',
-          'I am able to talk about the emotions that a piece of music evokes for me.'
-        )}
-        {renderScale(
-          'trigger_shivers',
-          'I sometimes choose music that can trigger shivers down my spine.'
-        )}
-        {renderScale(
-          'rare_emotions',
-          'Pieces of music rarely evoke emotions for me.'
-        )}
-        {renderScale(
-          'music_motivation',
-          'I often pick certain music to motivate or excite me.'
-        )}
+        {renderScale('not_musician_agreement', 'I would not consider myself a musician.')}
+        {renderScale('talk_emotions_ability', 'I am able to talk about the emotions …')}
+        {renderScale('trigger_shivers', 'I sometimes choose music that can trigger shivers …')}
+        {renderScale('rare_emotions', 'Pieces of music rarely evoke emotions for me.')}
+        {renderScale('music_motivation', 'I often pick certain music to motivate or excite me.')}
 
         <button
           className="btn btn-info btn-lg"
-          style={{ width: '100%', marginTop: '3rem' }}
-          onClick={onContinue}
+          style={{ width:'100%', marginTop:'3rem' }}
+          onClick={() => {
+            if (!allFilled) {
+              alert('Please fill in all fields before continuing.')
+              return
+            }
+            onContinue()
+          }}
         >
           Continue to songs
         </button>

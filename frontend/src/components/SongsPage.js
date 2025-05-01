@@ -4,7 +4,6 @@ import SongCard   from './SongCard'
 import Pagination from './Pagination'
 
 export default function SongsPage({
-  participantId,
   initialResponses,
   onAnswer,
   onBack,
@@ -28,15 +27,13 @@ export default function SongsPage({
       .catch(console.error)
   },[page])
 
-  // complete check for THIS page
   const allThisPage = songs.length>0 && songs.every(s=>{
     const r = initialResponses[s.id]||{}
     return r.knows!==null && r.score>0 && r.emotion!==null
   })
 
-  // total songs count = totalPages*10
-  const totalNeeded = totalPages*10
-  const answeredCount = Object.values(initialResponses)
+  const totalNeeded    = totalPages*10
+  const answeredCount  = Object.values(initialResponses)
     .filter(r=> r.knows!==null && r.score>0 && r.emotion!==null)
     .length
 
@@ -74,10 +71,7 @@ export default function SongsPage({
             <SongCard
               song={song}
               emotions={emotions}
-              participantId={participantId}
-              initialResponse={initialResponses[song.id]||{
-                knows: null, score: 0, emotion: null
-              }}
+              initialResponse={initialResponses[song.id]}
               onAnswer={onAnswer}
             />
           </div>

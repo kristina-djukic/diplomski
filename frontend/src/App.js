@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+// src/App.js
+import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
 import Welcome       from './components/Welcome'
@@ -8,6 +9,7 @@ import ThankYou      from './components/ThankYou'
 
 export default function App() {
   const [step, setStep]           = useState(0)
+  const [participantId, setId]    = useState(null)
   const [formData, setFormData]   = useState({
     daily_practice_years:   '',
     formal_training_years:  '',
@@ -19,6 +21,18 @@ export default function App() {
     music_motivation:       null
   })
   const [songResponses, setSongResponses] = useState({})
+
+  // warn on reload
+  useEffect(() => {
+    const handler = e => {
+      if (step > 0 && step < 3) {
+        e.preventDefault()
+        e.returnValue = ''
+      }
+    }
+    window.addEventListener('beforeunload', handler)
+    return () => window.removeEventListener('beforeunload', handler)
+  }, [step])
 
   const handleFormChange = (key, val) => {
     setFormData(fd => ({ ...fd, [key]: val }))
@@ -40,18 +54,21 @@ export default function App() {
   }
 
   const handleSubmitAll = async () => {
-    // Create participant
+    // 1) Create participant and get ID
     let pid
     try {
       const { data } = await axios.post('/participants', formData)
       pid = data.participant_id
+      setId(pid)
+      // 2) immediately advance to Thank-You
+      setStep(3)
     } catch {
       alert('Failed to save your info. Please try again.')
       return
     }
 
-    // Flush all song responses
-    for (const [songId, { knows, score, emotion }] of Object.entries(songResponses)) {
+    // 3) Fire-and-forget the song responses
+    Object.entries(songResponses).forEach(async ([songId, { knows, score, emotion }]) => {
       try {
         await axios.post('/knowledge', {
           participant_id: pid,
@@ -68,12 +85,10 @@ export default function App() {
           song_id: Number(songId),
           emotions: [emotion]
         })
-      } catch {
-        console.error('Failed to save song', songId)
+      } catch (err) {
+        console.error('Failed to save song', songId, err)
       }
-    }
-
-    setStep(3)
+    })
   }
 
   return (
@@ -90,7 +105,6 @@ export default function App() {
 
       {step === 2 && (
         <SongsPage
-          participantId={null /* not used until Submit All */}
           initialResponses={songResponses}
           onAnswer={handleSongAnswer}
           onBack={handleBackToQuestions}
@@ -98,7 +112,9 @@ export default function App() {
         />
       )}
 
-      {step === 3 && <ThankYou />}
+      {step === 3 && (
+        <ThankYou participantId={participantId} />
+      )}
     </>
   )
 }

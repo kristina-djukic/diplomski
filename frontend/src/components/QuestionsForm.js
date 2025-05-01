@@ -106,7 +106,7 @@ export default function QuestionsForm({ formData, onChange, onContinue }) {
 
         <button
           className="btn btn-info btn-lg"
-          style={{ width:'100%', marginTop:'3rem' }}
+          style={{ width:'100%'}}
           onClick={() => {
             if (!allFilled) {
               alert('Please fill in all fields before continuing.')

@@ -1,15 +1,33 @@
 // src/components/SongCard.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Card.css';
 
-export default function SongCard({ song, emotions, participantId }) {
-  const [knows, setKnows] = useState(null);
-  const [score, setScore] = useState(0);
-  const [hoverScore, setHoverScore] = useState(0);
-  const [selectedEmotion, setSelectedEmotion] = useState(null);
+export default function SongCard({
+  song,
+  emotions,
+  participantId,
+  initialResponse = { knows: null, score: 0, emotion: null },
+  onAnswer
+}) {
+  // 1) Local state, seeded from parent
+  const [knows, setKnows]               = useState(initialResponse.knows);
+  const [score, setScore]               = useState(initialResponse.score);
+  const [hoverScore, setHoverScore]     = useState(0);
+  const [selectedEmotion, setSelectedEmotion] = useState(initialResponse.emotion);
 
-  // build embed URL
+  // 2) Whenever any of the three answers change, bubble them all up at once:
+  useEffect(() => {
+    if (typeof onAnswer === 'function') {
+      onAnswer(song.id, {
+        knows,
+        score,
+        emotion: selectedEmotion
+      });
+    }
+  }, [knows, score, selectedEmotion, song.id, onAnswer]);
+
+  // 3) build embed URL
   let embedUrl;
   try {
     const vid = new URL(song.url).searchParams.get('v');
@@ -18,8 +36,8 @@ export default function SongCard({ song, emotions, participantId }) {
     embedUrl = song.url;
   }
 
-  // record know/no
-  const onKnow = (val) => {
+  // 4) Handlers that update local state + call your API
+  const handleKnow = (val) => {
     setKnows(val);
     axios.post('/knowledge', {
       participant_id: participantId,
@@ -28,8 +46,7 @@ export default function SongCard({ song, emotions, participantId }) {
     }).catch(console.error);
   };
 
-  // record star rating
-  const onStarClick = (n) => {
+  const handleStar = (n) => {
     setScore(n);
     axios.put('/ratings', {
       participant_id: participantId,
@@ -38,8 +55,7 @@ export default function SongCard({ song, emotions, participantId }) {
     }).catch(console.error);
   };
 
-  // record emotion
-  const onEmotionChange = (e) => {
+  const handleEmotion = (e) => {
     const id = parseInt(e.target.value, 10);
     setSelectedEmotion(id);
     axios.post('/song_emotions', {
@@ -49,7 +65,7 @@ export default function SongCard({ song, emotions, participantId }) {
     }).catch(console.error);
   };
 
-  // helper to split labels on slash
+  // 5) Render
   const renderLabel = (name) => {
     if (name.includes('/')) {
       const [a, b] = name.split('/');
@@ -66,7 +82,8 @@ export default function SongCard({ song, emotions, participantId }) {
   return (
     <div className="player-card p-4">
       <div className="row g-4 align-items-center">
-        {/* video */}
+
+        {/* Video */}
         <div className="col-12 col-md-6">
           <div className="ratio ratio-16x9">
             <iframe
@@ -78,7 +95,7 @@ export default function SongCard({ song, emotions, participantId }) {
           </div>
         </div>
 
-        {/* controls */}
+        {/* Controls */}
         <div className="col-12 col-md-6">
           <h3>{song.title}</h3>
           <h5 className="text-muted">{song.artist}</h5>
@@ -87,49 +104,49 @@ export default function SongCard({ song, emotions, participantId }) {
           <div className="mb-3">
             <label className="form-label">Did you know this song?</label>
             <div className="btn-group w-100">
-  <button
-    className="btn btn-outline-primary"
-    onClick={() => onKnow(true)}
-    style={{
-      color: knows === true ? '#fff' : '#000', // Black text initially
-      backgroundColor: knows === true ? '#16a2b9' : 'transparent', // Blue background when selected
-      borderColor: '#000', // Black border initially
-    }}
-    onMouseOver={(e) => {
-      e.target.style.color = '#fff'; // White text on hover
-      e.target.style.backgroundColor = '#16a2b9'; // Blue background on hover
-    }}
-    onMouseOut={(e) => {
-      if (knows !== true) {
-        e.target.style.color = '#000'; // Revert to black text if not selected
-        e.target.style.backgroundColor = 'transparent'; // Revert to transparent background if not selected
-      }
-    }}
-  >
-    Yes
-  </button>
-  <button
-    className="btn btn-outline-primary"
-    onClick={() => onKnow(false)}
-    style={{
-      color: knows === false ? '#fff' : '#000', // Black text initially
-      backgroundColor: knows === false ? '#16a2b9' : 'transparent', // Blue background when selected
-      borderColor: '#000', // Black border initially
-    }}
-    onMouseOver={(e) => {
-      e.target.style.color = '#fff'; // White text on hover
-      e.target.style.backgroundColor = '#16a2b9'; // Blue background on hover
-    }}
-    onMouseOut={(e) => {
-      if (knows !== false) {
-        e.target.style.color = '#000'; // Revert to black text if not selected
-        e.target.style.backgroundColor = 'transparent'; // Revert to transparent background if not selected
-      }
-    }}
-  >
-    No
-  </button>
-</div>
+              <button
+                className="btn btn-outline-primary"
+                onClick={() => handleKnow(true)}
+                style={{
+                  color:           knows === true ? '#fff' : '#000',
+                  backgroundColor: knows === true ? '#16a2b9' : 'transparent',
+                  borderColor:     '#000'
+                }}
+                onMouseOver={e => {
+                  e.target.style.color = '#fff';
+                  e.target.style.backgroundColor = '#16a2b9';
+                }}
+                onMouseOut={e => {
+                  if (knows !== true) {
+                    e.target.style.color = '#000';
+                    e.target.style.backgroundColor = 'transparent';
+                  }
+                }}
+              >
+                Yes
+              </button>
+              <button
+                className="btn btn-outline-primary"
+                onClick={() => handleKnow(false)}
+                style={{
+                  color:           knows === false ? '#fff' : '#000',
+                  backgroundColor: knows === false ? '#16a2b9' : 'transparent',
+                  borderColor:     '#000'
+                }}
+                onMouseOver={e => {
+                  e.target.style.color = '#fff';
+                  e.target.style.backgroundColor = '#16a2b9';
+                }}
+                onMouseOut={e => {
+                  if (knows !== false) {
+                    e.target.style.color = '#000';
+                    e.target.style.backgroundColor = 'transparent';
+                  }
+                }}
+              >
+                No
+              </button>
+            </div>
           </div>
 
           {/* Rating */}
@@ -138,17 +155,17 @@ export default function SongCard({ song, emotions, participantId }) {
             <div
               className="star-rating"
               onMouseLeave={() => setHoverScore(0)}
-              style={{ fontSize: '3rem', userSelect: 'none' }}
+              style={{ fontSize: '2.5rem', userSelect: 'none' }}
             >
-              {[1, 2, 3, 4, 5].map((n) => (
+              {[1, 2, 3, 4, 5].map(n => (
                 <span
                   key={n}
                   onMouseEnter={() => setHoverScore(n)}
-                  onClick={() => onStarClick(n)}
+                  onClick={() => handleStar(n)}
                   style={{
-                    cursor: 'pointer',
-                    color: (hoverScore || score) >= n ? '#ffd700' : '#ccc',
-                    marginRight: '4px',
+                    cursor:      'pointer',
+                    color:       (hoverScore || score) >= n ? '#ffd700' : '#ccc',
+                    marginRight: '4px'
                   }}
                 >
                   ★
@@ -172,7 +189,7 @@ export default function SongCard({ song, emotions, participantId }) {
                     id={`emotion-${song.id}-${e.id}`}
                     value={e.id}
                     checked={selectedEmotion === e.id}
-                    onChange={onEmotionChange}
+                    onChange={handleEmotion}
                   />
                   <label
                     className="form-check-label"

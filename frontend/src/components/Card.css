@@ -32,6 +32,14 @@
 }
 
 /* ------------------------------------------------------------- */
+/* Know / Yes–No spacing tweak                                  */
+/* ------------------------------------------------------------- */
+/* Add a little space between the label and the Yes/No buttons */
+.player-card .mb-3 > .btn-group {
+  margin-top: 0.25rem;
+}
+
+/* ------------------------------------------------------------- */
 /* Star rating */
 /* ------------------------------------------------------------- */
 .star-rating {
@@ -40,20 +48,6 @@
   user-select: none;
   gap: 0.25rem;
   margin-top: 0.5rem;
-}
-.star-rating .star {
-  color: #ccc;
-  cursor: pointer;
-  transition: color .1s;
-}
-.star-rating .star:hover,
-.star-rating .star:hover ~ .star {
-  /* hover-fill left-to-right */
-  color: rgba(255,215,0,.6);
-}
-.star-rating .star.filled {
-  /* clicked (permanent) fill */
-  color: #ffd700;
 }
 
 /* Force the rating row to always be label → stars */
@@ -67,7 +61,6 @@
   display: block;
   margin-bottom: 0.5rem;
 }
-
 
 /* ------------------------------------------------------------- */
 /* 3×3 Radio grid & labels                                       */
@@ -87,24 +80,21 @@
 }
 
 .emotion-grid .form-check-input {
-  /* revert to native size/tint, no extra scale */
   appearance: auto;
-  -webkit-appearance: radio; 
+  -webkit-appearance: radio;
   accent-color: #000;
   cursor: pointer;
-  margin: 0;        /* no extra offsets */
+  margin: 0;
 }
 
 .emotion-grid .form-check-label {
   cursor: pointer;
   font-size: 0.9rem;
   line-height: 1.2;
-  /* allow wrapping at slash or spaces */
   white-space: normal;
   overflow-wrap: break-word;
   hyphens: auto;
 }
-
 
 /* ------------------------------------------------------------- */
 /* Buttons & selects full width */

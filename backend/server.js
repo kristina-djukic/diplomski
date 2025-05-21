@@ -81,29 +81,43 @@ app.get('/emotions', (req, res) => {
     });
   });
   
-  // 4) POST /song_emotions → record the chosen emotions (clears old, inserts new)
-  app.post('/song_emotions', (req, res) => {
-    const { participant_id, song_id, emotions } = req.body; // emotions = [emotion_id,…]
-    // 4a) delete old
-    db.query(
-      'DELETE FROM song_emotions WHERE participant_id=? AND song_id=?',
-      [participant_id, song_id],
-      (err) => {
-        if (err) return res.status(500).json({ error: 'DB error' });
-        // 4b) bulk insert new
-        if (!emotions.length) return res.sendStatus(204);
-        const vals = emotions.map(id => [participant_id, song_id, id]);
-        db.query(
-          'INSERT INTO song_emotions (participant_id, song_id, emotion_id) VALUES ?',
-          [vals],
-          (err2) => {
-            if (err2) return res.status(500).json({ error: 'DB error' });
-            res.sendStatus(204);
-          }
-        );
-      }
-    );
+  // server.js
+
+// 4) POST /song_emotions → record all nine emotion‐ratings
+app.post('/song_emotions', (req, res) => {
+  const { participant_id, song_id, emotions } = req.body;
+  // emotions: Array<{ emotion_id: number, rating: number }>
+
+  if (!Array.isArray(emotions) || emotions.length === 0) {
+    console.log('🔸 /song_emotions: no ratings to save');
+    return res.sendStatus(204);
+  }
+
+  // build bulk‐insert values
+  const vals = emotions.map(({ emotion_id, rating }) => [
+    participant_id,
+    song_id,
+    emotion_id,
+    rating
+  ]);
+
+  const sql = `
+    INSERT INTO song_emotions
+      (participant_id, song_id, emotion_id, rating)
+    VALUES ?
+    ON DUPLICATE KEY UPDATE
+      rating = VALUES(rating)
+  `;
+  db.query(sql, [vals], err => {
+    if (err) {
+      console.error('Error saving song_emotions:', err);
+      return res.status(500).json({ error: 'DB error' });
+    }
+    
+    res.sendStatus(204);
   });
+});
+
 
 // 5) POST /participants → create a new participant
 app.post('/participants', (req, res) => {

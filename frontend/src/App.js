@@ -1,4 +1,3 @@
-// src/App.js
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
@@ -53,22 +52,21 @@ export default function App() {
     setStep(1)
   }
 
+  // NOW: waits for _all_ API calls before moving on
   const handleSubmitAll = async () => {
-    // 1) Create participant and get ID
     let pid
+    // 1) create participant
     try {
       const { data } = await axios.post('/participants', formData)
       pid = data.participant_id
       setId(pid)
-      // 2) immediately advance to Thank-You
-      setStep(3)
     } catch {
       alert('Failed to save your info. Please try again.')
       return
     }
 
-    // 3) Fire-and-forget the song responses
-    Object.entries(songResponses).forEach(async ([songId, { knows, score, emotion }]) => {
+    // 2) flush every song response
+    for (const [songId, { knows, score, emotionRatings }] of Object.entries(songResponses)) {
       try {
         await axios.post('/knowledge', {
           participant_id: pid,
@@ -82,13 +80,19 @@ export default function App() {
         })
         await axios.post('/song_emotions', {
           participant_id: pid,
-          song_id: Number(songId),
-          emotions: [emotion]
+          song_id:       Number(songId),
+          emotions: Object.entries(emotionRatings).map(([ emotion_id, rating ]) => ({
+            emotion_id: Number(emotion_id),
+            rating
+          }))
         })
       } catch (err) {
         console.error('Failed to save song', songId, err)
       }
-    })
+    }
+
+    // 3) only now show thank-you
+    setStep(3)
   }
 
   return (

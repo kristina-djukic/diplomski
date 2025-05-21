@@ -82,7 +82,7 @@
 .questions-card button[type="submit"] {
   width: 100%;
   font-size: 1.1rem;
-  margin-top: -2rem; /* 1rem gap above the button */
+
   /* no extra margin-top needed—it's already spaced out by the qf-group above */
 }
 

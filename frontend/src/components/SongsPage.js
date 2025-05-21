@@ -13,37 +13,59 @@ export default function SongsPage({
   const [emotions,   setEmotions]   = useState([])
   const [page,       setPage]       = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const [submitting, setSubmitting] = useState(false)
 
-  useEffect(()=>{
-    axios.get('/emotions').then(r=>setEmotions(r.data))
-  },[])
+  // load emotion list
+  useEffect(() => {
+    axios.get('/emotions').then(r => setEmotions(r.data))
+  }, [])
 
-  useEffect(()=>{
+  // load songs for current page
+  useEffect(() => {
     axios.get(`/songs?page=${page}`)
-      .then(r=>{
+      .then(r => {
         setSongs(r.data.songs)
         setTotalPages(r.data.totalPages)
       })
       .catch(console.error)
-  },[page])
+  }, [page])
 
-  const allThisPage = songs.length>0 && songs.every(s=>{
-    const r = initialResponses[s.id]||{}
-    return r.knows!==null && r.score>0 && r.emotion!==null
+  // do we have _every_ field on THIS page?
+  const allThisPage = songs.length > 0 && songs.every(song => {
+    const r = initialResponses[song.id] || {}
+    return r.knows               !== null &&
+           r.score               >  0    &&
+           r.emotionRatings      &&
+           Object.values(r.emotionRatings).every(v => v > 0)
   })
 
-  const totalNeeded    = totalPages*10
-  const answeredCount  = Object.values(initialResponses)
-    .filter(r=> r.knows!==null && r.score>0 && r.emotion!==null)
-    .length
+  // count every answered song across _all_ pages
+  const answeredCount = Object.values(initialResponses)
+    .filter(r =>
+      r.knows               !== null &&
+      r.score               >  0    &&
+      r.emotionRatings      &&
+      Object.values(r.emotionRatings).every(v => v > 0)
+    ).length
 
-  const goPage = np => {
-    if (np>page && !allThisPage) {
+  // how many songs total?
+  const totalRequired = totalPages * songs.length
+
+  // handle page change guard
+  const changePage = np => {
+    if (np > page && !allThisPage) {
       alert('Please finish all songs on this page before moving on.')
       return
     }
     setPage(np)
-    window.scrollTo({ top:0, behavior:'smooth' })
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  // submission handler
+  const handleSubmit = async () => {
+    setSubmitting(true)
+    await onSubmitAll()
+    // once App.js moves to ThankYou, this unmounts anyway
   }
 
   return (
@@ -54,19 +76,19 @@ export default function SongsPage({
 
       <h2 className="mb-3 text-center">Rate the Songs</h2>
       <p className="mb-4 text-center">
-        For each song: Yes/No, ★ rating, and one emotion. Complete all on each page before moving on.
+        For each song: Yes/No, ★ rating, and 9 emotion‐ratings.
       </p>
 
       <div className="d-flex justify-content-center mb-4">
         <Pagination
           currentPage={page}
           totalPages={totalPages}
-          onPageChange={goPage}
+          onPageChange={changePage}
         />
       </div>
 
       <div className="row g-4">
-        {songs.map(song=>(
+        {songs.map(song => (
           <div className="col-12" key={song.id}>
             <SongCard
               song={song}
@@ -82,17 +104,17 @@ export default function SongsPage({
         <Pagination
           currentPage={page}
           totalPages={totalPages}
-          onPageChange={goPage}
+          onPageChange={changePage}
         />
       </div>
 
       <div className="d-flex justify-content-center mt-5">
         <button
           className="btn btn-success btn-lg"
-          disabled={answeredCount < totalNeeded}
-          onClick={onSubmitAll}
+          disabled={submitting || answeredCount < totalRequired}
+          onClick={handleSubmit}
         >
-          Submit all
+          {submitting ? 'Submitting…' : 'Submit all'}
         </button>
       </div>
     </div>

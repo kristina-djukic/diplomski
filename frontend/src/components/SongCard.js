@@ -3,69 +3,72 @@ import './Card.css'
 
 export default function SongCard({
   song,
-  emotions,
-  initialResponse = { knows:null, score:0, emotion:null },
-  onAnswer
+  emotions = [],              // [{ id, name }, …]
+  initialResponse = {},       // { knows, score, emotionRatings }
+  onAnswer                   // (songId, { knows, score, emotionRatings }) → void
 }) {
-  const [knows, setKnows]                   = useState(initialResponse.knows)
-  const [score, setScore]                   = useState(initialResponse.score)
-  const [hoverScore, setHoverScore]         = useState(0)
-  const [selectedEmotion, setSelectedEmotion] = useState(initialResponse.emotion)
+  const emptyRatings = emotions.reduce((acc,e) => {
+    acc[e.id] = 0
+    return acc
+  }, {})
 
+  const [knows, setKnows] = useState(
+    initialResponse.knows != null ? initialResponse.knows : null
+  )
+  const [score, setScore] = useState(
+    initialResponse.score != null ? initialResponse.score : 0
+  )
+  const [hoverScore, setHoverScore] = useState(0)
+  const [emotionRatings, setEmotionRatings] = useState(
+    initialResponse.emotionRatings || emptyRatings
+  )
+
+  // bubble up every change
   useEffect(() => {
-    onAnswer(song.id, { knows, score, emotion: selectedEmotion })
-  }, [knows, score, selectedEmotion, song.id, onAnswer])
+    onAnswer(song.id, { knows, score, emotionRatings })
+  }, [knows, score, emotionRatings, song.id, onAnswer])
 
+  // YouTube → embed
   let embed = song.url
   try {
-    const v = new URL(song.url).searchParams.get('v')
-    embed = `https://www.youtube.com/embed/${v}`
+    const vid = new URL(song.url).searchParams.get('v')
+    embed = `https://www.youtube.com/embed/${vid}`
   } catch {}
 
-  const renderLabel = name => {
-    if (name.includes('/')) {
-      const [a,b] = name.split('/')
-      return <>{a}/<br/>{b}</>
-    }
-    return name
+  const handleEmotionRating = (id, val) => {
+    setEmotionRatings(prev => ({ ...prev, [id]: val }))
   }
 
   return (
     <div className="player-card p-4">
       <div className="row g-4 align-items-center">
+        {/* video */}
         <div className="col-12 col-md-6">
           <div className="ratio ratio-16x9">
             <iframe src={embed} title={song.title} allowFullScreen/>
           </div>
         </div>
+
+        {/* controls */}
         <div className="col-12 col-md-6">
           <h3>{song.title}</h3>
           <h5 className="text-muted">{song.artist}</h5>
 
+          {/* know */}
           <div className="mb-3">
             <label className="form-label">Did you know this song?</label>
             <div className="btn-group w-100">
-              {['Yes','No'].map((lab,i)=> {
-                const val = i===0
+              {['Yes','No'].map((lab,i) => {
+                const val = i === 0
                 return (
                   <button
                     key={lab}
                     className="btn btn-outline-primary"
-                    onClick={()=>setKnows(val)}
+                    onClick={() => setKnows(val)}
                     style={{
-                      color: knows===val? '#fff':'#000',
-                      backgroundColor: knows===val? '#16a2b9':'transparent',
-                      borderColor: '#000'
-                    }}
-                    onMouseOver={e=>{
-                      e.target.style.backgroundColor = '#16a2b9'
-                      e.target.style.color = '#fff'
-                    }}
-                    onMouseOut={e=>{
-                      if (knows!==val) {
-                        e.target.style.backgroundColor='transparent'
-                        e.target.style.color='#000'
-                      }
+                      backgroundColor: knows === val ? '#16a2b9' : 'transparent',
+                      color:           knows === val ? '#fff'   : '#000',
+                      borderColor:     '#000'
                     }}
                   >{lab}</button>
                 )
@@ -73,50 +76,51 @@ export default function SongCard({
             </div>
           </div>
 
+          {/* star */}
           <div className="mb-3 rating-row">
             <label className="form-label">Rate this song:</label>
-            <div
-              className="star-rating"
-              onMouseLeave={()=>setHoverScore(0)}
-              style={{ userSelect:'none' }}
-            >
-              {[1,2,3,4,5].map(n=>(
+            <div className="star-rating" onMouseLeave={() => setHoverScore(0)}>
+              {[1,2,3,4,5].map(n => (
                 <span
                   key={n}
-                  onMouseEnter={()=>setHoverScore(n)}
-                  onClick={()=>setScore(n)}
+                  onMouseEnter={() => setHoverScore(n)}
+                  onClick={() => setScore(n)}
                   style={{
-                    cursor:'pointer',
-                    fontSize:'2.5rem',
-                    color: (hoverScore||score) >= n ? '#ffd700':'#ccc',
-                    marginRight:'4px'
+                    cursor:      'pointer',
+                    color:       (hoverScore||score) >= n ? '#ffd700' : '#ccc',
+                    marginRight: '4px',
+                    fontSize:    '2.5rem'
                   }}
                 >★</span>
               ))}
             </div>
           </div>
+        </div>
+      </div>
 
-          <div className="mb-3">
-            <label className="form-label">Select the emotion this song evoked:</label>
-            <div className="emotion-grid">
-              {emotions.map(e=>(
-                <div className="form-check" key={e.id}>
-                  <input
-                    className="form-check-input"
-                    type="radio"
-                    name={`emo-${song.id}`}
-                    id={`emo-${song.id}-${e.id}`}
-                    checked={selectedEmotion===e.id}
-                    onChange={()=>setSelectedEmotion(e.id)}
-                  />
-                  <label className="form-check-label" htmlFor={`emo-${song.id}-${e.id}`}>
-                    {renderLabel(e.name)}
+      {/* 9 emotion‐rating grid */}
+      <div className="mb-3">
+        <label className="form-label">How much did you feel each emotion?</label>
+        <div className="emotion-grid">
+          {emotions.map(e => (
+            <div key={e.id} className="emotion-item">
+              <div className="emotion-label">{e.name}</div>
+              <div className="emotion-options">
+                {[1,2,3,4,5].map(n => (
+                  <label key={n} className="emotion-radio">
+                    <input
+                      type="radio"
+                      name={`emo-${song.id}-${e.id}`}
+                      value={n}
+                      checked={emotionRatings[e.id] === n}
+                      onChange={() => handleEmotionRating(e.id, n)}
+                    />
+                    <span className="emotion-num">{n}</span>
                   </label>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-
+          ))}
         </div>
       </div>
     </div>

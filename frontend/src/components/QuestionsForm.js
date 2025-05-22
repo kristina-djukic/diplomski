@@ -58,7 +58,7 @@ export default function QuestionsForm({ formData, onChange, onContinue }) {
       <div className="questions-card">
         <div className="qf-group">
           <label className="qf-label">
-            I engaged in regular, daily practice of a musical instrument (including voice) … for:
+            I engaged in regular, daily practice of a musical instrument (including voice) for:
           </label>
           <select
             className="qf-select"
@@ -77,7 +77,7 @@ export default function QuestionsForm({ formData, onChange, onContinue }) {
 
         <div className="qf-group">
           <label className="qf-label">
-           I have had … years of formal training on a musical instrument (including voice) during my lifetime.
+           I have had __ years of formal training on a musical instrument (including voice) during my lifetime.
           </label>
           <select
             className="qf-select"

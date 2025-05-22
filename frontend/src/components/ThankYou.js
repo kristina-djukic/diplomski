@@ -1,6 +1,6 @@
 // src/components/ThankYouPage.js
-import React from 'react';
-import './ThankYou.css';
+import React from "react";
+import "./ThankYou.css";
 
 export default function ThankYou({ participantId }) {
   return (
@@ -11,8 +11,11 @@ export default function ThankYou({ participantId }) {
         <p>Your unique ID is:</p>
         <div className="thankyou-id">{participantId}</div>
         <p className="thankyou-note">
-          If you ever wish your data to be deleted, please email{' '}
-          <a href="mailto:youremail@example.com">kristina,djukic.002@gmail.com</a> with that ID.
+          If you ever wish your data to be deleted, please email{" "}
+          <a href="mailto:youremail@example.com">
+            kristina,djukic.002@gmail.com
+          </a>{" "}
+          with that ID.
         </p>
       </div>
     </div>

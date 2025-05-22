@@ -1,99 +1,78 @@
-import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
-import Welcome       from './components/Welcome'
-import QuestionsForm from './components/QuestionsForm'
-import SongsPage     from './components/SongsPage'
-import ThankYou      from './components/ThankYou'
+import Welcome from "./components/Welcome";
+import QuestionsForm from "./components/QuestionsForm";
+import SongsPage from "./components/SongsPage";
+import ThankYou from "./components/ThankYou";
 
 export default function App() {
-  const [step, setStep]           = useState(0)
-  const [participantId, setId]    = useState(null)
-  const [formData, setFormData]   = useState({
-    daily_practice_years:   '',
-    formal_training_years:  '',
-    music_theory_years:     '',
+  const [step, setStep] = useState(0);
+  const [participantId, setId] = useState(null);
+  const [formData, setFormData] = useState({
+    daily_practice_years: "",
+    formal_training_years: "",
+    music_theory_years: "",
     not_musician_agreement: null,
-    talk_emotions_ability:  null,
-    trigger_shivers:        null,
-    rare_emotions:          null,
-    music_motivation:       null
-  })
-  const [songResponses, setSongResponses] = useState({})
+    talk_emotions_ability: null,
+    trigger_shivers: null,
+    rare_emotions: null,
+    music_motivation: null,
+  });
+  const [songResponses, setSongResponses] = useState({});
 
   // warn on reload
   useEffect(() => {
-    const handler = e => {
+    const handler = (e) => {
       if (step > 0 && step < 3) {
-        e.preventDefault()
-        e.returnValue = ''
+        e.preventDefault();
+        e.returnValue = "";
       }
-    }
-    window.addEventListener('beforeunload', handler)
-    return () => window.removeEventListener('beforeunload', handler)
-  }, [step])
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [step]);
 
   const handleFormChange = (key, val) => {
-    setFormData(fd => ({ ...fd, [key]: val }))
-  }
+    setFormData((fd) => ({ ...fd, [key]: val }));
+  };
 
   const handleFormContinue = () => {
-    setStep(2)
-  }
+    setStep(2);
+  };
 
   const handleSongAnswer = (songId, ans) => {
-    setSongResponses(sr => ({
+    setSongResponses((sr) => ({
       ...sr,
-      [songId]: ans
-    }))
-  }
+      [songId]: ans,
+    }));
+  };
 
   const handleBackToQuestions = () => {
-    setStep(1)
-  }
+    setStep(1);
+  };
 
   // NOW: waits for _all_ API calls before moving on
   const handleSubmitAll = async () => {
-    let pid
+    let pid;
     // 1) create participant
     try {
-      const { data } = await axios.post('/participants', formData)
-      pid = data.participant_id
-      setId(pid)
+      console.log("Submitting formData:", formData); // Add this line
+      const { data } = await axios.post("/participants", formData);
+      pid = data.participant_id;
+      setId(pid);
     } catch {
-      alert('Failed to save your info. Please try again.')
-      return
+      alert("Failed to save your info. Please try again.");
+      return;
     }
 
-    // 2) flush every song response
-    for (const [songId, { knows, score, emotionRatings }] of Object.entries(songResponses)) {
-      try {
-        await axios.post('/knowledge', {
-          participant_id: pid,
-          song_id: Number(songId),
-          knows_song: knows ? 1 : 0
-        })
-        await axios.put('/ratings', {
-          participant_id: pid,
-          song_id: Number(songId),
-          score
-        })
-        await axios.post('/song_emotions', {
-          participant_id: pid,
-          song_id:       Number(songId),
-          emotions: Object.entries(emotionRatings).map(([ emotion_id, rating ]) => ({
-            emotion_id: Number(emotion_id),
-            rating
-          }))
-        })
-      } catch (err) {
-        console.error('Failed to save song', songId, err)
-      }
-    }
+    await axios.post("/submit", {
+      pid: pid,
+      songResponses: songResponses,
+    });
 
-    // 3) only now show thank-you
-    setStep(3)
-  }
+    setStep(3);
+  };
 
   return (
     <>
@@ -116,9 +95,7 @@ export default function App() {
         />
       )}
 
-      {step === 3 && (
-        <ThankYou participantId={participantId} />
-      )}
+      {step === 3 && <ThankYou participantId={participantId} />}
     </>
-  )
+  );
 }

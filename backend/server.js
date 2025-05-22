@@ -1,44 +1,44 @@
 const express = require("express");
 const app = express();
-const db = require("./config/db"); // Importing the database config
-const port = 5000; // Port for the server
+const db = require("./config/db");
+const port = 5000;
 const cors = require("cors");
-const { generateAllResults } = require("./functions/generateAllResults");
-const { generateRatingsValues } = require("./functions/generateRatingsValues");
 const {
+  ratingsQuery,
+  songEmotionsQuery,
+  songsQuery,
+  songsCountQuery,
+  emotionsQuery,
+  participantsQuery,
+} = require("./queries");
+const {
+  generateAllResults,
+  generateRatingsValues,
   generateSongEmotionsValues,
-} = require("./functions/generateSongEmotionsValues");
-const { ratingsQuery } = require("./queries/ratingsQuery");
-const { songEmotionsQuery } = require("./queries/songEmotionsQuery");
+} = require("./functions");
 
 app.use(express.json());
 app.use(cors());
 
 app.get("/songs", (req, res) => {
   const page = parseInt(req.query.page) || 1;
-  const limit = 10; // Number of songs per page
-  const offset = (page - 1) * limit; // Offset for pagination
+  const limit = 10;
+  const offset = (page - 1) * limit;
 
-  // Query the database to get the songs for the current page
-  const query =
-    "SELECT song_id AS id, title, artist, url FROM songs LIMIT ? OFFSET ?";
-
-  db.query(query, [limit, offset], (err, results) => {
+  db.query(songsQuery, [limit, offset], (err, results) => {
     if (err) {
       console.error("Error fetching songs:", err);
       return res.status(500).json({ error: "Database error" });
     }
 
-    // Get the total number of songs to calculate total pages
-    const countQuery = "SELECT COUNT(*) AS totalSongs FROM songs";
-    db.query(countQuery, (err, countResult) => {
+    db.query(songsCountQuery, (err, countResult) => {
       if (err) {
         console.error("Error counting songs:", err);
         return res.status(500).json({ error: "Database error" });
       }
 
       const totalSongs = countResult[0].totalSongs;
-      const totalPages = Math.ceil(totalSongs / limit); // Total pages based on number of songs and limit
+      const totalPages = Math.ceil(totalSongs / limit);
 
       res.json({
         songs: results,
@@ -48,10 +48,8 @@ app.get("/songs", (req, res) => {
   });
 });
 
-// 1) GET /emotions → return all emotion options
 app.get("/emotions", (req, res) => {
-  const q = "SELECT emotion_id AS id, name FROM emotions";
-  db.query(q, (err, rows) => {
+  db.query(emotionsQuery, (err, rows) => {
     if (err) return res.status(500).json({ error: "DB error" });
     res.json(rows);
   });
@@ -81,7 +79,6 @@ app.post("/submit", (req, res) => {
   });
 });
 
-// 5) POST /participants → create a new participant
 app.post("/participants", (req, res) => {
   const {
     daily_practice_years,
@@ -94,15 +91,8 @@ app.post("/participants", (req, res) => {
     music_motivation,
   } = req.body;
 
-  const q = `
-      INSERT INTO participants
-        (daily_practice_years, not_musician_agreement, formal_training_years,
-         music_theory_years, talk_emotions_ability, trigger_shivers,
-         rare_emotions, music_motivation)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `;
   db.query(
-    q,
+    participantsQuery,
     [
       daily_practice_years,
       not_musician_agreement,
@@ -120,7 +110,6 @@ app.post("/participants", (req, res) => {
   );
 });
 
-// Start the server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });

@@ -3,9 +3,9 @@ import "./Card.css";
 
 export default function SongCard({
   song,
-  emotions = [], // [{ id, name }, …]
-  initialResponse = {}, // { knows, score, emotionRatings }
-  onAnswer, // (songId, { knows, score, emotionRatings }) → void
+  emotions = [],
+  initialResponse = {},
+  onAnswer,
 }) {
   const emptyRatings = emotions.reduce((acc, e) => {
     acc[e.id] = 0;
@@ -23,7 +23,6 @@ export default function SongCard({
     initialResponse.emotionRatings || emptyRatings
   );
 
-  // bubble up every change
   useEffect(() => {
     onAnswer(song.id, { knows, score, emotionRatings });
   }, [knows, score, emotionRatings, song.id, onAnswer]);
@@ -40,7 +39,7 @@ export default function SongCard({
   };
 
   return (
-    <div className="player-card p-4">
+    <div className="player-card p-4" style={{ position: "relative" }}>
       <div className="row g-4 align-items-center">
         {/* video */}
         <div className="col-12 col-md-6">
@@ -106,26 +105,48 @@ export default function SongCard({
         <label className="form-label">
           How much did you feel each emotion?
         </label>
+        {/* Emotion scale labels */}
+        <div className="emotion-scale-labels mb-2 d-flex justify-content-between">
+          <span>1 Not at all</span>
+          <span>2 Somewhat</span>
+          <span>3 Moderately</span>
+          <span>4 Quite a lot</span>
+          <span>5 Very much</span>
+        </div>
         <div className="emotion-grid">
-          {emotions.map((e) => (
-            <div key={e.id} className="emotion-item">
-              <div className="emotion-label">{e.name}</div>
-              <div className="emotion-options">
-                {[1, 2, 3, 4, 5].map((n) => (
-                  <label key={n} className="emotion-radio">
-                    <input
-                      type="radio"
-                      name={`emo-${song.id}-${e.id}`}
-                      value={n}
-                      checked={emotionRatings[e.id] === n}
-                      onChange={() => handleEmotionRating(e.id, n)}
-                    />
-                    <span className="emotion-num">{n}</span>
-                  </label>
-                ))}
+          {[...emotions]
+            .sort((a, b) => a.id - b.id)
+            .map((e) => (
+              <div key={e.id} className="emotion-item">
+                <div
+                  className="emotion-label"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 6,
+                    width: "100%",
+                    textAlign: "center",
+                  }}
+                >
+                  {e.name}
+                </div>
+                <div className="emotion-options">
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <label key={n} className="emotion-radio">
+                      <input
+                        type="radio"
+                        name={`emo-${song.id}-${e.id}`}
+                        value={n}
+                        checked={emotionRatings[e.id] === n}
+                        onChange={() => handleEmotionRating(e.id, n)}
+                      />
+                      <span className="emotion-num">{n}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       </div>
     </div>

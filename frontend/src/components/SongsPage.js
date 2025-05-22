@@ -3,6 +3,25 @@ import axios from "axios";
 import SongCard from "./SongCard";
 import Pagination from "./Pagination";
 
+// Emotion descriptions for modal
+const emotionInfo = {
+  1: "Filled with wonder, dazzled, allured, moved",
+  2: "Fascinated, overwhelmed, feelings of transcendence and spirituality",
+  3: "Strong, triumphant, energetic, fiery",
+  4: "Tender, affectionate, in love, mellowed",
+  5: "Nostalgic, dreamy, sentimental, melancholic",
+  6: "Serene, calm, soothed, relaxed",
+  7: "Joyful, amused, animated, bouncy",
+  8: "Sad, sorrowful",
+  9: "Tense, agitated, nervous, irritated",
+};
+
+const instructionsText = (
+  <>
+    When providing your ratings, please describe how the music you listen to makes you feel (e.g., this music makes me feel sad). Do not describe the music (e.g., this music is sad) or what the music may be expressive of (e.g. this music expresses sadness). Bear in mind that a piece of music can be sad or can sound sad without making you feel sad. Please rate the intensity with which you felt each of the following feelings on a scale ranging from 1 (not at all) to 5 (very much).
+  </>
+);
+
 export default function SongsPage({
   initialResponses,
   onAnswer,
@@ -15,6 +34,7 @@ export default function SongsPage({
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [submitting, setSubmitting] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   // load emotion list
   useEffect(() => {
@@ -24,12 +44,9 @@ export default function SongsPage({
   // Fetch all pages' songs on mount
   useEffect(() => {
     const fetchAllPages = async () => {
-      // First, fetch page 1 to get totalPages
       const first = await axios.get(`/songs?page=1`);
       let allPages = { 1: first.data.songs };
       let total = first.data.totalPages;
-
-      // Now fetch the rest (if any)
       for (let p = 2; p <= total; p++) {
         const r = await axios.get(`/songs?page=${p}`);
         allPages[p] = r.data.songs;
@@ -40,12 +57,10 @@ export default function SongsPage({
     fetchAllPages();
   }, []);
 
-  // Always update songs when page or songsByPage changes
   useEffect(() => {
     setSongs(songsByPage[page] || []);
   }, [page, songsByPage]);
 
-  // do we have _every_ field on THIS page?
   const allThisPage =
     songs.length > 0 &&
     songs.every((song) => {
@@ -58,7 +73,6 @@ export default function SongsPage({
       );
     });
 
-  // count every answered song across _all_ pages
   const answeredCount = Object.values(initialResponses).filter(
     (r) =>
       r.knows !== null &&
@@ -67,11 +81,9 @@ export default function SongsPage({
       Object.values(r.emotionRatings).every((v) => v > 0)
   ).length;
 
-  // how many songs total?
   const totalRequired =
     Object.values(songsByPage).reduce((sum, arr) => sum + arr.length, 0);
 
-  // helper function to check if a page is filled
   const isPageFilled = (p) => {
     const pageSongs = songsByPage[p] || [];
     return (
@@ -88,7 +100,6 @@ export default function SongsPage({
     );
   };
 
-  // handle page change guard
   const changePage = (np) => {
     if (np === page) return;
     if (np < page) {
@@ -96,7 +107,6 @@ export default function SongsPage({
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
-    // Check all pages from current to np-1
     for (let p = page; p < np; p++) {
       if (!isPageFilled(p)) {
         alert("Please finish all songs on each page before moving on.");
@@ -107,22 +117,132 @@ export default function SongsPage({
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // submission handler
   const handleSubmit = async () => {
     setSubmitting(true);
     await onSubmitAll();
-    // once App.js moves to ThankYou, this unmounts anyway
   };
 
   return (
     <div className="container py-5">
-      <button className="btn btn-link mb-3" onClick={onBack}>
+      <button className="btn btn-link mb-3" onClick={onBack}  style={{
+            color: "#16a2b9",   fontSize: "1em",}}>
         ← Back to questions
       </button>
       <h2 className="mb-3 text-center">Rate the Songs</h2>
       <p className="mb-4 text-center">
-        For each song: Yes/No, ★ rating, and 9 emotion‐ratings.
+        For each song: Indicate if you knew it (Yes/No), rate how much you like it (1–5 ★), and rate how strongly you felt each emotion. If you don’t know a song, please listen to a few seconds before rating. The GEMS scale is used to measure your emotional response.<br />
+        <strong>Note:</strong> Please read the instructions and emotion descriptions before starting. You must answer all questions on each page to continue and submit.
       </p>
+
+      <div className="text-center mb-4">
+        <span
+          style={{
+            color: "#16a2b9",
+            fontSize: "1em",
+            fontWeight: 600,
+            cursor: "pointer",
+            marginRight: 28,
+            textDecoration: "none" // removed underline
+          }}
+          onClick={() => setShowModal("instructions")}
+          role="button"
+          tabIndex={0}
+        >
+          Instructions
+        </span>
+        <span
+          style={{
+            color: "#16a2b9",
+            fontSize: "1em",
+            fontWeight: 600,
+            cursor: "pointer",
+            textDecoration: "none" // removed underline
+          }}
+          onClick={() => setShowModal("emotions")}
+          role="button"
+          tabIndex={0}
+        >
+          Emotion Descriptions
+        </span>
+      </div>
+
+      {/* Modal for instructions or emotion descriptions */}
+      {showModal && (
+        <div
+          className="info-modal"
+          style={{
+            position: "fixed",
+            left: 0,
+            top: 0,
+            width: "100vw",
+            height: "100vh",
+            background: "rgba(0,0,0,0.45)",
+            zIndex: 9999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          onClick={() => setShowModal(null)}
+        >
+          <div
+            style={{
+              background: "#fff",
+              color: "#222",
+              borderRadius: 12,
+              padding: "22px 18px 18px 18px",
+              maxWidth: 450,
+              width: "90vw",
+              boxShadow: "0 2px 16px rgba(0,0,0,0.18)",
+              position: "relative",
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              aria-label="Close"
+              onClick={() => setShowModal(null)}
+              style={{
+                position: "absolute",
+                top: 8,
+                right: 12,
+                background: "none",
+                border: "none",
+                fontSize: "1.5em",
+                color: "#888",
+                cursor: "pointer",
+              }}
+            >
+              ×
+            </button>
+            {showModal === "instructions" && (
+              <>
+                <h5 style={{ textAlign: "center", marginBottom: 16, color: "#16a2b9" }}>
+                  Instructions
+                </h5>
+                <div style={{ fontSize: "1em", color: "#444" }}>
+                  {instructionsText}
+                </div>
+              </>
+            )}
+            {showModal === "emotions" && (
+              <>
+                <h5 style={{ textAlign: "center", marginBottom: 16, color: "#16a2b9" }}>
+                  Emotion Descriptions
+                </h5>
+                <ul style={{ paddingLeft: 0, listStyle: "none", margin: 0 }}>
+                  {[...emotions]
+                    .sort((a, b) => a.id - b.id)
+                    .map((e) => (
+                      <li key={e.id} style={{ marginBottom: 10 }}>
+                        <strong>{e.name}:</strong> {emotionInfo[e.id]}
+                      </li>
+                    ))}
+                </ul>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="d-flex justify-content-center mb-4">
         <Pagination
@@ -145,6 +265,7 @@ export default function SongsPage({
         ))}
       </div>
 
+   
       <div className="d-flex justify-content-center mt-4">
         <Pagination
           currentPage={page}
@@ -168,6 +289,31 @@ export default function SongsPage({
           {submitting ? "Submitting…" : "Submit all"}
         </button>
       </div>
+
+      <div style={{
+  fontSize: "0.9em",
+  color: "#444",
+  background: "#f8f9fa",
+  borderRadius: 8,
+  padding: "14px 20px",
+  margin: "32px auto 0 auto",
+  maxWidth: 700,
+  textAlign: "justify",
+}}>
+  <strong>
+    <span style={{
+      fontSize: "1.2em",
+      verticalAlign: "middle",
+      marginRight: 4,
+      fontWeight: 700,
+      letterSpacing: "1px",
+      fontFamily: "Arial, Helvetica, sans-serif"
+    }}>©</span>
+    Copyright Notice:
+  </strong><br />
+  Please note that the above selection, ordering, and designation of music-evoked emotions (the “GEMS”) has been developed under the lead and responsibility of Prof. Marcel Zentner, PhD, Innsbruck University. The GEMS introduces a scientifically validated process to reliably measure musically evoked emotions. The GEMS will be amended and updated from time to time, following the results of its application in research and practice. The GEMS is protected by copyright laws worldwide. Any copying, communicating, disseminating, or making the GEMS otherwise available, is prohibited without the express permission of Prof. Marcel Zentner or his due representative.
+</div>
+
     </div>
   );
 }

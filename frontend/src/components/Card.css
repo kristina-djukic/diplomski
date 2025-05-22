@@ -92,12 +92,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
 }
 
 .emotion-radio input[type="radio"] {
-  width: 1rem;
-  height: 1rem;
+  width: 1.2rem;
+  height: 1.2rem;
   margin-bottom: 0.25rem;
   cursor: pointer;
 }
@@ -105,6 +105,22 @@
 .emotion-num {
   line-height: 1;
 }
+
+.emotion-scale-labels {
+  display: flex;
+  justify-content: space-between;
+  color:#16a2b9;
+  font-size: 0.85em;
+  margin: 0 auto 10px auto;
+  max-width: 400px;
+  text-align: center;
+}
+.emotion-scale-labels span {
+  flex: 1;
+  text-align: center;
+  white-space: nowrap;
+}
+
 
 /* ensure label fonts match your other form-labels */
 .form-label {

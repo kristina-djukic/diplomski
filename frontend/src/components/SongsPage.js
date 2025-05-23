@@ -111,8 +111,8 @@ export default function SongsPage({
       </button>
       <h2 className="mb-3 text-center">Rate the Songs</h2>
       <p className="mb-4 text-center">
-        For each song, indicate if you knew it before (Yes/No), rate how much you like it (1–5 ★), and rate the intensity of each emotion you felt. If you don’t know a song, please listen to a few seconds before rating. The GEMS scale is used to measure your emotional response.<br />
-        <strong>Note:</strong> Please read the instructions and emotion descriptions before starting. You must answer all questions on each page to continue and submit.
+        For each song, indicate if you know it (Yes/No). If you know it, rate how much you like it (1–5 ★) and how strongly you felt each emotion. If you’re unsure or need a reminder, you can listen to a few seconds of the song. The GEMS scale is used to measure your emotional response.<br />
+        <strong>Note:</strong> You can read more about each emotion by clicking "Emotion Descriptions". You must answer all questions on each page to continue and submit.
       </p>
 
       <div className="text-center mb-4">

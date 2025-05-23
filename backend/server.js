@@ -83,10 +83,10 @@ app.post("/participants", (req, res) => {
   const {
     daily_practice_years,
     not_musician_agreement,
-    formal_training_years,
-    music_theory_years,
+    musical_preformer_compliment,
+    num_instruments_played,
     talk_emotions_ability,
-    trigger_shivers,
+    evoke_past,
     rare_emotions,
     music_motivation,
   } = req.body;
@@ -96,10 +96,10 @@ app.post("/participants", (req, res) => {
     [
       daily_practice_years,
       not_musician_agreement,
-      formal_training_years,
-      music_theory_years,
+      musical_preformer_compliment,
+      num_instruments_played,
       talk_emotions_ability,
-      trigger_shivers,
+      evoke_past,
       rare_emotions,
       music_motivation,
     ],

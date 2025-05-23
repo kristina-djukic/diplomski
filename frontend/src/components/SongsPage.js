@@ -3,7 +3,6 @@ import axios from "axios";
 import SongCard from "./SongCard";
 import Pagination from "./Pagination";
 
-// Emotion descriptions for modal
 const emotionInfo = {
   1: "Filled with wonder, dazzled, allured, moved",
   2: "Fascinated, overwhelmed, feelings of transcendence and spirituality",
@@ -15,12 +14,6 @@ const emotionInfo = {
   8: "Sad, sorrowful",
   9: "Tense, agitated, nervous, irritated",
 };
-
-const instructionsText = (
-  <>
-    When providing your ratings, please describe how the music you listen to makes you feel (e.g., this music makes me feel sad). Do not describe the music (e.g., this music is sad) or what the music may be expressive of (e.g. this music expresses sadness). Bear in mind that a piece of music can be sad or can sound sad without making you feel sad. Please rate the intensity with which you felt each of the following feelings on a scale ranging from 1 (not at all) to 5 (very much).
-  </>
-);
 
 export default function SongsPage({
   initialResponses,
@@ -36,12 +29,10 @@ export default function SongsPage({
   const [submitting, setSubmitting] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
-  // load emotion list
   useEffect(() => {
     axios.get("/emotions").then((r) => setEmotions(r.data));
   }, []);
 
-  // Fetch all pages' songs on mount
   useEffect(() => {
     const fetchAllPages = async () => {
       const first = await axios.get(`/songs?page=1`);
@@ -61,17 +52,6 @@ export default function SongsPage({
     setSongs(songsByPage[page] || []);
   }, [page, songsByPage]);
 
-  const allThisPage =
-    songs.length > 0 &&
-    songs.every((song) => {
-      const r = initialResponses[song.id] || {};
-      return (
-        r.knows !== null &&
-        r.score > 0 &&
-        r.emotionRatings &&
-        Object.values(r.emotionRatings).every((v) => v > 0)
-      );
-    });
 
   const answeredCount = Object.values(initialResponses).filter(
     (r) =>
@@ -124,13 +104,14 @@ export default function SongsPage({
 
   return (
     <div className="container py-5">
-      <button className="btn btn-link mb-3" onClick={onBack}  style={{
-            color: "#16a2b9",   fontSize: "1em",}}>
+      <button className="btn btn-link mb-3" onClick={onBack} style={{
+        color: "#16a2b9", fontSize: "1em",
+      }}>
         ← Back to questions
       </button>
       <h2 className="mb-3 text-center">Rate the Songs</h2>
       <p className="mb-4 text-center">
-        For each song: Indicate if you knew it (Yes/No), rate how much you like it (1–5 ★), and rate how strongly you felt each emotion. If you don’t know a song, please listen to a few seconds before rating. The GEMS scale is used to measure your emotional response.<br />
+        For each song, indicate if you knew it before (Yes/No), rate how much you like it (1–5 ★), and rate the intensity of each emotion you felt. If you don’t know a song, please listen to a few seconds before rating. The GEMS scale is used to measure your emotional response.<br />
         <strong>Note:</strong> Please read the instructions and emotion descriptions before starting. You must answer all questions on each page to continue and submit.
       </p>
 
@@ -141,22 +122,7 @@ export default function SongsPage({
             fontSize: "1em",
             fontWeight: 600,
             cursor: "pointer",
-            marginRight: 28,
-            textDecoration: "none" // removed underline
-          }}
-          onClick={() => setShowModal("instructions")}
-          role="button"
-          tabIndex={0}
-        >
-          Instructions
-        </span>
-        <span
-          style={{
-            color: "#16a2b9",
-            fontSize: "1em",
-            fontWeight: 600,
-            cursor: "pointer",
-            textDecoration: "none" // removed underline
+            textDecoration: "none"
           }}
           onClick={() => setShowModal("emotions")}
           role="button"
@@ -166,7 +132,6 @@ export default function SongsPage({
         </span>
       </div>
 
-      {/* Modal for instructions or emotion descriptions */}
       {showModal && (
         <div
           className="info-modal"
@@ -214,16 +179,6 @@ export default function SongsPage({
             >
               ×
             </button>
-            {showModal === "instructions" && (
-              <>
-                <h5 style={{ textAlign: "center", marginBottom: 16, color: "#16a2b9" }}>
-                  Instructions
-                </h5>
-                <div style={{ fontSize: "1em", color: "#444" }}>
-                  {instructionsText}
-                </div>
-              </>
-            )}
             {showModal === "emotions" && (
               <>
                 <h5 style={{ textAlign: "center", marginBottom: 16, color: "#16a2b9" }}>
@@ -265,7 +220,7 @@ export default function SongsPage({
         ))}
       </div>
 
-   
+
       <div className="d-flex justify-content-center mt-4">
         <Pagination
           currentPage={page}
@@ -291,28 +246,28 @@ export default function SongsPage({
       </div>
 
       <div style={{
-  fontSize: "0.9em",
-  color: "#444",
-  background: "#f8f9fa",
-  borderRadius: 8,
-  padding: "14px 20px",
-  margin: "32px auto 0 auto",
-  maxWidth: 700,
-  textAlign: "justify",
-}}>
-  <strong>
-    <span style={{
-      fontSize: "1.2em",
-      verticalAlign: "middle",
-      marginRight: 4,
-      fontWeight: 700,
-      letterSpacing: "1px",
-      fontFamily: "Arial, Helvetica, sans-serif"
-    }}>©</span>
-    Copyright Notice:
-  </strong><br />
-  Please note that the above selection, ordering, and designation of music-evoked emotions (the “GEMS”) has been developed under the lead and responsibility of Prof. Marcel Zentner, PhD, Innsbruck University. The GEMS introduces a scientifically validated process to reliably measure musically evoked emotions. The GEMS will be amended and updated from time to time, following the results of its application in research and practice. The GEMS is protected by copyright laws worldwide. Any copying, communicating, disseminating, or making the GEMS otherwise available, is prohibited without the express permission of Prof. Marcel Zentner or his due representative.
-</div>
+        fontSize: "0.9em",
+        color: "#444",
+        background: "#f8f9fa",
+        borderRadius: 8,
+        padding: "14px 20px",
+        margin: "32px auto 0 auto",
+        maxWidth: 700,
+        textAlign: "justify",
+      }}>
+        <strong>
+          <span style={{
+            fontSize: "1.2em",
+            verticalAlign: "middle",
+            marginRight: 4,
+            fontWeight: 700,
+            letterSpacing: "1px",
+            fontFamily: "Arial, Helvetica, sans-serif"
+          }}>©</span>
+          Copyright Notice:
+        </strong><br />
+        Please note that the above selection, ordering, and designation of music-evoked emotions (the “GEMS”) has been developed under the lead and responsibility of Prof. Marcel Zentner, PhD, Innsbruck University. The GEMS introduces a scientifically validated process to reliably measure musically evoked emotions. The GEMS will be amended and updated from time to time, following the results of its application in research and practice. The GEMS is protected by copyright laws worldwide. Any copying, communicating, disseminating, or making the GEMS otherwise available, is prohibited without the express permission of Prof. Marcel Zentner or his due representative.
+      </div>
 
     </div>
   );

@@ -1,14 +1,12 @@
 const mysql = require('mysql2');
 
-// Konekcija sa bazom podataka
 const connection = mysql.createConnection({
-  host: 'localhost',         // Host tvoje baze (može biti localhost ili IP adresa servera)
-  user: 'root',         // Korisničko ime za bazu
-  password: '', // Lozinka za bazu
-  database: 'diplomski' // Naziv tvoje baze
+  host: 'localhost',   
+  user: 'root',        
+  password: '', 
+  database: 'diplomski' 
 });
 
-// Povezivanje sa bazom
 connection.connect((err) => {
   if (err) {
     console.error('Database connection failed: ', err.stack);

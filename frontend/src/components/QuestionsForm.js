@@ -13,16 +13,15 @@ const SCALE_LABELS = {
 
 export default function QuestionsForm({ formData, onChange, onContinue }) {
   const yearsOpts = ["0", "1", "2", "3", "4-5", "6-9", "10 or more"];
-  const theoryOpts = ["0", "0.5", "1", "2", "3", "4-6", "7 or more"];
-  const yearsInstrument = ["0", "0.5", "1", "2", "3-5", "6-9", "10 or more"];
+  const yearsInstrument = ["0", "1", "2", "3", "4","5","6 or more"];
 
   const allFilled =
     formData.daily_practice_years &&
-    formData.formal_training_years &&
-    formData.music_theory_years &&
+    formData.num_instruments_played &&
+    formData.musical_preformer_compliment !== null &&
     formData.not_musician_agreement !== null &&
     formData.talk_emotions_ability !== null &&
-    formData.trigger_shivers !== null &&
+    formData.evoke_past !== null &&
     formData.rare_emotions !== null &&
     formData.music_motivation !== null;
 
@@ -34,9 +33,8 @@ export default function QuestionsForm({ formData, onChange, onContinue }) {
           <div className="qf-scale-item" key={n}>
             <button
               type="button"
-              className={`btn btn-outline-secondary ${
-                formData[key] === n ? "active" : ""
-              }`}
+              className={`btn btn-outline-secondary ${formData[key] === n ? "active" : ""
+                }`}
               style={{ borderColor: "#16a2b9" }}
               onClick={() => onChange(key, n)}>
               {n}
@@ -77,12 +75,12 @@ export default function QuestionsForm({ formData, onChange, onContinue }) {
 
         <div className="qf-group">
           <label className="qf-label">
-           I have had __ years of formal training on a musical instrument (including voice) during my lifetime.
+           I can play _ musical instruments.
           </label>
           <select
             className="qf-select"
-            value={formData.formal_training_years}
-            onChange={(e) => onChange("formal_training_years", e.target.value)}>
+            value={formData.num_instruments_played}
+            onChange={(e) => onChange("num_instruments_played", e.target.value)}>
             <option value="" disabled>
               — select years —
             </option>
@@ -94,24 +92,10 @@ export default function QuestionsForm({ formData, onChange, onContinue }) {
           </select>
         </div>
 
-        <div className="qf-group">
-          <label className="qf-label">
-            I have had formal training in music theory for:
-          </label>
-          <select
-            className="qf-select"
-            value={formData.music_theory_years}
-            onChange={(e) => onChange("music_theory_years", e.target.value)}>
-            <option value="" disabled>
-              — select years —
-            </option>
-            {theoryOpts.map((y) => (
-              <option key={y} value={y}>
-                {y} years
-              </option>
-            ))}
-          </select>
-        </div>
+        {renderScale(
+          "musical_preformer_compliment",
+          "I have never been complimented for my talents as a musical performer."
+        )}
 
         {renderScale(
           "not_musician_agreement",
@@ -122,8 +106,8 @@ export default function QuestionsForm({ formData, onChange, onContinue }) {
           "I am able to talk about the emotions that a piece of music evokes for me."
         )}
         {renderScale(
-          "trigger_shivers",
-          "I sometimes choose music that can trigger shivers down my spine."
+          "evoke_past",
+          "Music can evoke my memories of past people and places."
         )}
         {renderScale(
           "rare_emotions",

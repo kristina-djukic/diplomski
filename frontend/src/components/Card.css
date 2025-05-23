@@ -1,47 +1,35 @@
-/* ============================================================= */
-/*                         Card.css                              */
-/* ============================================================= */
-
-/* card container */
 .player-card {
   width: 100%;
   max-width: 700px;
   margin: 1.5rem auto;
-  padding: clamp(1rem,2vw,2rem);
+  padding: clamp(1rem, 2vw, 2rem);
   background: white;
   border-radius: 15px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* titles */
 .player-card h3 {
-  font-size: clamp(1.25rem,3vw,2rem);
+  font-size: clamp(1.25rem, 3vw, 2rem);
   margin-bottom: .5rem;
 }
+
 .player-card h5 {
-  font-size: clamp(1rem,2vw,1.25rem);
+  font-size: clamp(1rem, 2vw, 1.25rem);
   margin-bottom: 1rem;
   color: #6c757d;
 }
 
-/* video rounding & shadow */
 .player-card .ratio-16x9 {
   overflow: hidden;
   border-radius: 12px;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
-/* ------------------------------------------------------------- */
-/* Know / Yes–No spacing tweak                                  */
-/* ------------------------------------------------------------- */
-/* Add a little space between the label and the Yes/No buttons */
-.player-card .mb-3 > .btn-group {
+.player-card .mb-3>.btn-group {
   margin-top: 0.25rem;
 }
 
-/* ------------------------------------------------------------- */
-/* Star rating */
-/* ------------------------------------------------------------- */
+
 .star-rating {
   display: inline-flex;
   font-size: 2.5rem;
@@ -50,19 +38,19 @@
   margin-top: 0.5rem;
 }
 
-/* Force the rating row to always be label → stars */
+
 .player-card .mb-3.rating-row {
   display: flex;
   flex-direction: column;
 }
 
-/* make sure the label sits above */
+
 .player-card .mb-3.rating-row .form-label {
   display: block;
   margin-bottom: 0.5rem;
 }
 
-/* ==== emotion grid ==== */
+
 .emotion-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -71,7 +59,7 @@
 }
 
 .emotion-item {
-  background: rgba(0,0,0,0.03);
+  background: rgba(0, 0, 0, 0.03);
   border-radius: 8px;
   padding: 0.5rem;
   text-align: center;
@@ -109,12 +97,13 @@
 .emotion-scale-labels {
   display: flex;
   justify-content: space-between;
-  color:#16a2b9;
+  color: #16a2b9;
   font-size: 0.85em;
   margin: 0 auto 10px auto;
   max-width: 400px;
   text-align: center;
 }
+
 .emotion-scale-labels span {
   flex: 1;
   text-align: center;
@@ -122,12 +111,10 @@
 }
 
 
-/* ensure label fonts match your other form-labels */
 .form-label {
   font-size: 1rem;
 }
 
-/* collapse to single column on small screens */
 @media (max-width: 576px) {
   .emotion-grid {
     grid-template-columns: 1fr;
@@ -135,17 +122,19 @@
 }
 
 
-/* ------------------------------------------------------------- */
-/* Buttons & selects full width */
 .player-card .btn-group,
 .player-card .form-select {
   width: 100%;
 }
 
-/* responsive padding */
 @media (max-width: 768px) {
-  .player-card { padding: clamp(0.75rem,3vw,1.5rem); }
+  .player-card {
+    padding: clamp(0.75rem, 3vw, 1.5rem);
+  }
 }
+
 @media (max-width: 576px) {
-  .player-card { padding: 1rem; }
+  .player-card {
+    padding: 1rem;
+  }
 }

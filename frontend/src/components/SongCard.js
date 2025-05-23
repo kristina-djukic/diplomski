@@ -27,12 +27,11 @@ export default function SongCard({
     onAnswer(song.id, { knows, score, emotionRatings });
   }, [knows, score, emotionRatings, song.id, onAnswer]);
 
-  // YouTube → embed
   let embed = song.url;
   try {
     const vid = new URL(song.url).searchParams.get("v");
     embed = `https://www.youtube.com/embed/${vid}`;
-  } catch {}
+  } catch { }
 
   const handleEmotionRating = (id, val) => {
     setEmotionRatings((prev) => ({ ...prev, [id]: val }));
@@ -41,19 +40,16 @@ export default function SongCard({
   return (
     <div className="player-card p-4" style={{ position: "relative" }}>
       <div className="row g-4 align-items-center">
-        {/* video */}
         <div className="col-12 col-md-6">
           <div className="ratio ratio-16x9">
             <iframe src={embed} title={song.title} allowFullScreen />
           </div>
         </div>
 
-        {/* controls */}
         <div className="col-12 col-md-6">
           <h3>{song.title}</h3>
           <h5 className="text-muted">{song.artist}</h5>
 
-          {/* know */}
           <div className="mb-3">
             <label className="form-label">Did you know this song?</label>
             <div className="btn-group w-100">
@@ -77,7 +73,6 @@ export default function SongCard({
             </div>
           </div>
 
-          {/* star */}
           <div className="mb-3 rating-row">
             <label className="form-label">Rate this song:</label>
             <div className="star-rating" onMouseLeave={() => setHoverScore(0)}>
@@ -100,12 +95,10 @@ export default function SongCard({
         </div>
       </div>
 
-      {/* 9 emotion‐rating grid */}
       <div className="mb-3">
         <label className="form-label">
           How much did you feel each emotion?
         </label>
-        {/* Emotion scale labels */}
         <div className="emotion-scale-labels mb-2 d-flex justify-content-between">
           <span>1 Not at all</span>
           <span>2 Somewhat</span>

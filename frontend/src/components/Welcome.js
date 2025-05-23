@@ -16,11 +16,15 @@ export default function Welcome({ onStart }) {
           emotional responses and song preferences.
         </p>
         <p>
-          In this survery you will be asked to answer a few questions about your
-          musical background, as well as rate 50 songs and rate how strongly you
-          felt each listed emotion in response to the music. If you do not know
-          the song or need a reminder you can listen to a couple of seconds of
-          the song. The survey takes approximately 15 minutes to complete.
+          <p>
+            In this survey, you will be asked a few questions about your musical
+            background, and then presented with 50 songs. For each song, indicate
+            whether you know it. If you do, you will rate how much you like it and
+            how strongly you felt each listed emotion in response to the music. If you need
+            a reminder of the song, you can listen to a couple of seconds of it.
+            If you do not know the song, simply indicate so and move to the next one.
+            The survey takes approximately 15 minutes to complete.
+          </p>
         </p>
         <p>
           Your anonymous responses will be securely stored on University of

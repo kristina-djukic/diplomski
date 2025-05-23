@@ -1,56 +1,50 @@
-
-
-/* full‐screen light background */
 .thankyou-bg {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    background-color: #f0f0f0;
-    padding: 2rem;
-  }
-  
-  /* white card in the middle */
-  .thankyou-card {
-    background: white;
-    padding: 2rem 2.5rem;
-    max-width: 600px;
-    width: 100%;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    text-align: center;
-  }
-  
-  /* headings & text */
-  .thankyou-card h2 {
-    margin-bottom: 1rem;
-  }
-  .thankyou-card p {
-    margin: 0.5rem 0;
-    color: #333;
-    line-height: 1.4;
-  }
-  
-  /* the big blue ID box */
-  .thankyou-id {
-    display: inline-block;
-    margin: 1rem 0;
-    padding: 0.75rem 1.5rem;
-    border: 2px solid #16a2b9;
-    border-radius: 8px;
-    background-color: #16a2b9;
-    color: #fff;
-    font-size: 1.25rem;
-    font-weight: 600;
-  }
-  
-  /* smaller footer note */
-  .thankyou-note {
-    margin-top: 1rem;
-    font-size: 0.9rem;
-  }
-  .thankyou-note a {
-    color: #16a2b9;
-    text-decoration: underline;
-  }
-  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #f0f0f0;
+  padding: 2rem;
+}
+
+.thankyou-card {
+  background: white;
+  padding: 2rem 2.5rem;
+  max-width: 600px;
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.thankyou-card h2 {
+  margin-bottom: 1rem;
+}
+
+.thankyou-card p {
+  margin: 0.5rem 0;
+  color: #333;
+  line-height: 1.4;
+}
+
+.thankyou-id {
+  display: inline-block;
+  margin: 1rem 0;
+  padding: 0.75rem 1.5rem;
+  border: 2px solid #16a2b9;
+  border-radius: 8px;
+  background-color: #16a2b9;
+  color: #fff;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.thankyou-note {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+.thankyou-note a {
+  color: #16a2b9;
+  text-decoration: underline;
+}

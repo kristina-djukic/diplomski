@@ -11,17 +11,16 @@ export default function App() {
   const [participantId, setId] = useState(null);
   const [formData, setFormData] = useState({
     daily_practice_years: "",
-    formal_training_years: "",
-    music_theory_years: "",
+    musical_preformer_compliment: "",
+    num_instruments_played: "",
     not_musician_agreement: null,
     talk_emotions_ability: null,
-    trigger_shivers: null,
+    evoke_past: null,
     rare_emotions: null,
     music_motivation: null,
   });
   const [songResponses, setSongResponses] = useState({});
 
-  // warn on reload
   useEffect(() => {
     const handler = (e) => {
       if (step > 0 && step < 3) {
@@ -52,12 +51,10 @@ export default function App() {
     setStep(1);
   };
 
-  // NOW: waits for _all_ API calls before moving on
   const handleSubmitAll = async () => {
     let pid;
-    // 1) create participant
     try {
-      console.log("Submitting formData:", formData); // Add this line
+      console.log("Submitting formData:", formData); 
       const { data } = await axios.post("/participants", formData);
       pid = data.participant_id;
       setId(pid);

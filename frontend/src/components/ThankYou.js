@@ -1,4 +1,3 @@
-// src/components/ThankYouPage.js
 import React from "react";
 import "./ThankYou.css";
 

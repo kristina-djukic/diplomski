@@ -31,15 +31,18 @@ export default function SongCard({
   try {
     const vid = new URL(song.url).searchParams.get("v");
     embed = `https://www.youtube.com/embed/${vid}`;
-  } catch { }
+  } catch {}
 
   const handleEmotionRating = (id, val) => {
     setEmotionRatings((prev) => ({ ...prev, [id]: val }));
   };
 
+  const disabledClass = knows === false ? "disabled-section" : "";
+
   return (
     <div className="player-card p-4" style={{ position: "relative" }}>
       <div className="row g-4 align-items-center">
+        {/* video */}
         <div className="col-12 col-md-6">
           <div className="ratio ratio-16x9">
             <iframe src={embed} title={song.title} allowFullScreen />
@@ -65,7 +68,8 @@ export default function SongCard({
                         knows === val ? "#16a2b9" : "transparent",
                       color: knows === val ? "#fff" : "#000",
                       borderColor: "#000",
-                    }}>
+                    }}
+                  >
                     {lab}
                   </button>
                 );
@@ -73,20 +77,21 @@ export default function SongCard({
             </div>
           </div>
 
-          <div className="mb-3 rating-row">
+          <div className={`mb-3 rating-row ${disabledClass}`}>
             <label className="form-label">Rate this song:</label>
             <div className="star-rating" onMouseLeave={() => setHoverScore(0)}>
               {[1, 2, 3, 4, 5].map((n) => (
                 <span
                   key={n}
-                  onMouseEnter={() => setHoverScore(n)}
-                  onClick={() => setScore(n)}
+                  onMouseEnter={() => knows !== false && setHoverScore(n)}
+                  onClick={() => knows !== false && setScore(n)}
                   style={{
-                    cursor: "pointer",
+                    cursor: knows === false ? "not-allowed" : "pointer",
                     color: (hoverScore || score) >= n ? "#ffd700" : "#ccc",
                     marginRight: "4px",
                     fontSize: "2.5rem",
-                  }}>
+                  }}
+                >
                   ★
                 </span>
               ))}
@@ -95,51 +100,57 @@ export default function SongCard({
         </div>
       </div>
 
-      <div className="mb-3">
-        <label className="form-label">
-          How much did you feel each emotion?
-        </label>
-        <div className="emotion-scale-labels mb-2 d-flex justify-content-between">
-          <span>1 Not at all</span>
-          <span>2 Somewhat</span>
-          <span>3 Moderately</span>
-          <span>4 Quite a lot</span>
-          <span>5 Very much</span>
-        </div>
-        <div className="emotion-grid">
-          {[...emotions]
-            .sort((a, b) => a.id - b.id)
-            .map((e) => (
-              <div key={e.id} className="emotion-item">
-                <div
-                  className="emotion-label"
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 6,
-                    width: "100%",
-                    textAlign: "center",
-                  }}
-                >
-                  {e.name}
+      <div className={disabledClass}>
+        <div className="mb-3">
+          <label className="form-label">
+            How much did you feel each emotion?
+          </label>
+          <div className="emotion-scale-labels mb-2 d-flex justify-content-between">
+            <span>1 Not at all</span>
+            <span>2 Somewhat</span>
+            <span>3 Moderately</span>
+            <span>4 Quite a lot</span>
+            <span>5 Very much</span>
+          </div>
+          <div className="emotion-grid">
+            {emotions
+              .slice()
+              .sort((a, b) => a.id - b.id)
+              .map((e) => (
+                <div key={e.id} className="emotion-item">
+                  <div
+                    className="emotion-label"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 6,
+                      width: "100%",
+                      textAlign: "center",
+                    }}
+                  >
+                    {e.name}
+                  </div>
+                  <div className="emotion-options">
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <label key={n} className="emotion-radio">
+                        <input
+                          type="radio"
+                          name={`emo-${song.id}-${e.id}`}
+                          value={n}
+                          checked={emotionRatings[e.id] === n}
+                          onChange={() =>
+                            knows !== false && handleEmotionRating(e.id, n)
+                          }
+                          disabled={knows === false}
+                        />
+                        <span className="emotion-num">{n}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
-                <div className="emotion-options">
-                  {[1, 2, 3, 4, 5].map((n) => (
-                    <label key={n} className="emotion-radio">
-                      <input
-                        type="radio"
-                        name={`emo-${song.id}-${e.id}`}
-                        value={n}
-                        checked={emotionRatings[e.id] === n}
-                        onChange={() => handleEmotionRating(e.id, n)}
-                      />
-                      <span className="emotion-num">{n}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            ))}
+              ))}
+          </div>
         </div>
       </div>
     </div>

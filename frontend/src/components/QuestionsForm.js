@@ -82,11 +82,11 @@ export default function QuestionsForm({ formData, onChange, onContinue }) {
             value={formData.num_instruments_played}
             onChange={(e) => onChange("num_instruments_played", e.target.value)}>
             <option value="" disabled>
-              — select years —
+              — select number —
             </option>
             {yearsInstrument.map((y) => (
               <option key={y} value={y}>
-                {y} years
+                {y} 
               </option>
             ))}
           </select>

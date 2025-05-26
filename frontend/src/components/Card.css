@@ -10,7 +10,7 @@
 
 .player-card h3 {
   font-size: clamp(1.25rem, 3vw, 2rem);
-  margin-bottom: .5rem;
+  margin-bottom: 0.5rem;
 }
 
 .player-card h5 {
@@ -25,10 +25,9 @@
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
-.player-card .mb-3>.btn-group {
+.player-card .mb-3 > .btn-group {
   margin-top: 0.25rem;
 }
-
 
 .star-rating {
   display: inline-flex;
@@ -38,18 +37,15 @@
   margin-top: 0.5rem;
 }
 
-
 .player-card .mb-3.rating-row {
   display: flex;
   flex-direction: column;
 }
 
-
 .player-card .mb-3.rating-row .form-label {
   display: block;
   margin-bottom: 0.5rem;
 }
-
 
 .emotion-grid {
   display: grid;
@@ -68,6 +64,7 @@
 .emotion-label {
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
+  text-align: center;
 }
 
 .emotion-options {
@@ -97,7 +94,7 @@
 .disabled-section {
   opacity: 0.4;
   filter: grayscale(1);
-  pointer-events: none; 
+  pointer-events: none;
 }
 
 .emotion-scale-labels {
@@ -116,17 +113,9 @@
   white-space: nowrap;
 }
 
-
 .form-label {
   font-size: 1rem;
 }
-
-@media (max-width: 576px) {
-  .emotion-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
 
 .player-card .btn-group,
 .player-card .form-select {
@@ -142,5 +131,41 @@
 @media (max-width: 576px) {
   .player-card {
     padding: 1rem;
+  }
+
+  .emotion-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .emotion-options {
+    display: table !important;
+    width: 100% !important;
+    table-layout: fixed !important;
+    margin-top: 0.5rem !important;
+  }
+
+  .emotion-radio {
+    display: table-cell !important;
+    text-align: center !important;
+    vertical-align: top !important;
+    font-size: 1.1rem !important;
+
+    padding: 0 0.25rem !important;
+  }
+
+  .emotion-radio input[type="radio"] {
+    display: block !important;
+    margin: 0 auto 0.25rem !important;
+  }
+
+  .emotion-num {
+    display: block !important;
+    margin: 0 auto !important;
+    line-height: 1 !important;
+  }
+
+  .emotion-label {
+    font-size: 1rem !important;
+    margin-bottom: 0.7rem !important;
   }
 }

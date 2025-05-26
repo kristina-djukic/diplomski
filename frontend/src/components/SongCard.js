@@ -8,7 +8,7 @@ export default function SongCard({
   onAnswer,
 }) {
   const emptyRatings = emotions.reduce((acc, e) => {
-    acc[e.id] = 0;
+    acc[e.id] = null;
     return acc;
   }, {});
 
@@ -37,6 +37,19 @@ export default function SongCard({
     setEmotionRatings((prev) => ({ ...prev, [id]: val }));
   };
 
+  const handleKnows = (val) => {
+    setKnows(val);
+    if (val === false) {
+      setScore(null);
+      setEmotionRatings(
+        emotions.reduce((acc, e) => {
+          acc[e.id] = null;
+          return acc;
+        }, {})
+      );
+    }
+  };
+
   const disabledClass = knows === false ? "disabled-section" : "";
 
   return (
@@ -62,7 +75,7 @@ export default function SongCard({
                   <button
                     key={lab}
                     className="btn btn-outline-primary"
-                    onClick={() => setKnows(val)}
+                    onClick={() => handleKnows(val)}
                     style={{
                       backgroundColor:
                         knows === val ? "#16a2b9" : "transparent",

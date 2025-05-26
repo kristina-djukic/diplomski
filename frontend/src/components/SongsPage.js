@@ -56,9 +56,15 @@ export default function SongsPage({
   const answeredCount = Object.values(initialResponses).filter(
     (r) =>
       r.knows !== null &&
-      r.score > 0 &&
-      r.emotionRatings &&
-      Object.values(r.emotionRatings).every((v) => v > 0)
+      (
+        r.knows === false || 
+        (
+          r.knows === true &&
+          r.score != null &&
+          r.emotionRatings &&
+          Object.values(r.emotionRatings).every((v) => v != null)
+        )
+      )
   ).length;
 
   const totalRequired =
@@ -70,11 +76,12 @@ export default function SongsPage({
       pageSongs.length > 0 &&
       pageSongs.every((song) => {
         const r = initialResponses[song.id] || {};
+        if (r.knows === false) return true; 
         return (
           r.knows !== null &&
-          r.score > 0 &&
+          r.score != null &&
           r.emotionRatings &&
-          Object.values(r.emotionRatings).every((v) => v > 0)
+          Object.values(r.emotionRatings).every((v) => v != null)
         );
       })
     );
@@ -157,8 +164,14 @@ export default function SongsPage({
               padding: "22px 18px 18px 18px",
               maxWidth: 450,
               width: "90vw",
+              maxHeight: "80vh",
+              overflowY: "auto",
               boxShadow: "0 2px 16px rgba(0,0,0,0.18)",
               position: "relative",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "flex-start",
+              alignItems: "stretch"
             }}
             onClick={e => e.stopPropagation()}
           >

@@ -28,6 +28,7 @@ export default function SongsPage({
   const [totalPages, setTotalPages] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [highlightedUnanswered, setHighlightedUnanswered] = useState([]);
 
   useEffect(() => {
     axios.get("/emotions").then((r) => setEmotions(r.data));
@@ -52,23 +53,39 @@ export default function SongsPage({
     setSongs(songsByPage[page] || []);
   }, [page, songsByPage]);
 
+  useEffect(() => {
+    if (highlightedUnanswered.length > 0) {
+      const pageSongs = songsByPage[page] || [];
+      const stillUnanswered = highlightedUnanswered.filter((id) => {
+        const r = initialResponses[id] || {};
+        return (
+          r.knows == null ||
+          (r.knows === true &&
+            (r.score == null ||
+              !r.emotionRatings ||
+              Object.values(r.emotionRatings).some((v) => v == null)))
+        );
+      });
+      if (stillUnanswered.length !== highlightedUnanswered.length) {
+        setHighlightedUnanswered(stillUnanswered);
+      }
+    }
+  }, [initialResponses, highlightedUnanswered, songsByPage, page]);
 
   const answeredCount = Object.values(initialResponses).filter(
     (r) =>
       r.knows !== null &&
-      (
-        r.knows === false || 
-        (
-          r.knows === true &&
+      (r.knows === false ||
+        (r.knows === true &&
           r.score != null &&
           r.emotionRatings &&
-          Object.values(r.emotionRatings).every((v) => v != null)
-        )
-      )
+          Object.values(r.emotionRatings).every((v) => v != null)))
   ).length;
 
-  const totalRequired =
-    Object.values(songsByPage).reduce((sum, arr) => sum + arr.length, 0);
+  const totalRequired = Object.values(songsByPage).reduce(
+    (sum, arr) => sum + arr.length,
+    0
+  );
 
   const isPageFilled = (p) => {
     const pageSongs = songsByPage[p] || [];
@@ -76,7 +93,7 @@ export default function SongsPage({
       pageSongs.length > 0 &&
       pageSongs.every((song) => {
         const r = initialResponses[song.id] || {};
-        if (r.knows === false) return true; 
+        if (r.knows === false) return true;
         return (
           r.knows !== null &&
           r.score != null &&
@@ -91,35 +108,91 @@ export default function SongsPage({
     if (np === page) return;
     if (np < page) {
       setPage(np);
+      setHighlightedUnanswered([]); // clear highlights when going back
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
     for (let p = page; p < np; p++) {
       if (!isPageFilled(p)) {
+        const pageSongs = songsByPage[p] || [];
+        const unansweredIds = [];
+        for (let song of pageSongs) {
+          const r = initialResponses[song.id] || {};
+          if (
+            r.knows == null ||
+            (r.knows === true &&
+              (r.score == null ||
+                !r.emotionRatings ||
+                Object.values(r.emotionRatings).some((v) => v == null)))
+          ) {
+            unansweredIds.push(song.id);
+          }
+        }
+        setHighlightedUnanswered(unansweredIds);
+        if (unansweredIds.length) {
+          const el = document.getElementById(`song-card-${unansweredIds[0]}`);
+          if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
         alert("Please finish all songs on each page before moving on.");
         return;
       }
     }
+    setHighlightedUnanswered([]);
     setPage(np);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleSubmit = async () => {
+    let firstUnansweredId = null;
+    let unansweredIds = [];
+    Object.values(songsByPage).forEach((pageSongs) => {
+      pageSongs.forEach((song) => {
+        const r = initialResponses[song.id] || {};
+        if (
+          r.knows == null ||
+          (r.knows === true &&
+            (r.score == null ||
+              !r.emotionRatings ||
+              Object.values(r.emotionRatings).some((v) => v == null)))
+        ) {
+          if (!firstUnansweredId) firstUnansweredId = song.id;
+          unansweredIds.push(song.id);
+        }
+      });
+    });
+    if (unansweredIds.length > 0) {
+      setHighlightedUnanswered(unansweredIds);
+      const el = document.getElementById(`song-card-${firstUnansweredId}`);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+      alert("Please fill in all the answers before submitting.");
+      return;
+    }
     setSubmitting(true);
     await onSubmitAll();
   };
 
   return (
     <div className="container py-5">
-      <button className="btn btn-link mb-3" onClick={onBack} style={{
-        color: "#16a2b9", fontSize: "1em",
-      }}>
+      <button
+        className="btn btn-link mb-3"
+        onClick={onBack}
+        style={{
+          color: "#16a2b9",
+          fontSize: "1em",
+        }}
+      >
         ← Back to questions
       </button>
       <h2 className="mb-3 text-center">Rate the Songs</h2>
       <p className="mb-4 text-center">
-        For each song, indicate if you know it (Yes/No). If you know it, rate how much you like it (1–5 ★) and how strongly you felt each emotion. If you’re unsure or need a reminder, you can listen to a few seconds of the song. The GEMS scale is used to measure your emotional response.<br />
-        <strong>Note:</strong> You can read more about each emotion by clicking "Emotion Descriptions". You must answer all questions on each page to continue and submit.
+        For each song, indicate if you know it (Yes/No). If you know it, rate
+        how much you like it (1–5 ★) and how strongly you felt each emotion. If
+        you’re unsure or need a reminder, you can listen to a few seconds of the
+        song. The GEMS scale is used to measure your emotional response.
+        <br />
+        <strong>Note:</strong> You can read more about each emotion by clicking
+        "Emotion Descriptions". You must answer all questions on each page to
+        continue and submit.
       </p>
 
       <div className="text-center mb-4">
@@ -129,7 +202,7 @@ export default function SongsPage({
             fontSize: "1em",
             fontWeight: 600,
             cursor: "pointer",
-            textDecoration: "none"
+            textDecoration: "none",
           }}
           onClick={() => setShowModal("emotions")}
           role="button"
@@ -171,9 +244,9 @@ export default function SongsPage({
               display: "flex",
               flexDirection: "column",
               justifyContent: "flex-start",
-              alignItems: "stretch"
+              alignItems: "stretch",
             }}
-            onClick={e => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
           >
             <button
               type="button"
@@ -194,7 +267,13 @@ export default function SongsPage({
             </button>
             {showModal === "emotions" && (
               <>
-                <h5 style={{ textAlign: "center", marginBottom: 16, color: "#16a2b9" }}>
+                <h5
+                  style={{
+                    textAlign: "center",
+                    marginBottom: 16,
+                    color: "#16a2b9",
+                  }}
+                >
                   Emotion Descriptions
                 </h5>
                 <ul style={{ paddingLeft: 0, listStyle: "none", margin: 0 }}>
@@ -221,18 +300,22 @@ export default function SongsPage({
       </div>
 
       <div className="row g-4">
-        {songs.map((song) => (
-          <div className="col-12" key={song.id}>
-            <SongCard
-              song={song}
-              emotions={emotions}
-              initialResponse={initialResponses[song.id]}
-              onAnswer={onAnswer}
-            />
-          </div>
-        ))}
+        {songs.map((song) => {
+          const r = initialResponses[song.id] || {};
+          const isUnanswered = highlightedUnanswered.includes(song.id);
+          return (
+            <div className="col-12" key={song.id}>
+              <SongCard
+                song={song}
+                emotions={emotions}
+                initialResponse={initialResponses[song.id]}
+                onAnswer={onAnswer}
+                isUnanswered={isUnanswered}
+              />
+            </div>
+          );
+        })}
       </div>
-
 
       <div className="d-flex justify-content-center mt-4">
         <Pagination
@@ -242,46 +325,61 @@ export default function SongsPage({
         />
       </div>
 
-      {answeredCount < totalRequired && (
-        <div className="text-danger mb-2 text-center">
-          Please answer all questions on all pages before submitting.
-        </div>
-      )}
-
       <div className="d-flex justify-content-center mt-5">
         <button
           className="btn btn-success btn-lg"
-          disabled={submitting || answeredCount < totalRequired}
+          disabled={submitting}
           onClick={handleSubmit}
         >
           {submitting ? "Submitting…" : "Submit all"}
         </button>
       </div>
 
-      <div style={{
-        fontSize: "0.9em",
-        color: "#444",
-        background: "#f8f9fa",
-        borderRadius: 8,
-        padding: "14px 20px",
-        margin: "32px auto 0 auto",
-        maxWidth: 700,
-        textAlign: "justify",
-      }}>
-        <strong>
-          <span style={{
-            fontSize: "1.2em",
-            verticalAlign: "middle",
-            marginRight: 4,
-            fontWeight: 700,
-            letterSpacing: "1px",
-            fontFamily: "Arial, Helvetica, sans-serif"
-          }}>©</span>
-          Copyright Notice:
-        </strong><br />
-        Please note that the above selection, ordering, and designation of music-evoked emotions (the “GEMS”) has been developed under the lead and responsibility of Prof. Marcel Zentner, PhD, Innsbruck University. The GEMS introduces a scientifically validated process to reliably measure musically evoked emotions. The GEMS will be amended and updated from time to time, following the results of its application in research and practice. The GEMS is protected by copyright laws worldwide. Any copying, communicating, disseminating, or making the GEMS otherwise available, is prohibited without the express permission of Prof. Marcel Zentner or his due representative.
-      </div>
+      {answeredCount < totalRequired && (
+        <div className="text-danger mb-2 text-center">
+          Please answer all questions on all pages before submitting.
+        </div>
+      )}
 
+      <div
+        style={{
+          fontSize: "0.9em",
+          color: "#444",
+          background: "#f8f9fa",
+          borderRadius: 8,
+          padding: "14px 20px",
+          margin: "32px auto 0 auto",
+          maxWidth: 700,
+          textAlign: "justify",
+        }}
+      >
+        <strong>
+          <span
+            style={{
+              fontSize: "1.2em",
+              verticalAlign: "middle",
+              marginRight: 4,
+              fontWeight: 700,
+              letterSpacing: "1px",
+              fontFamily: "Arial, Helvetica, sans-serif",
+            }}
+          >
+            ©
+          </span>
+          Copyright Notice:
+        </strong>
+        <br />
+        Please note that the above selection, ordering, and designation of
+        music-evoked emotions (the “GEMS”) has been developed under the lead and
+        responsibility of Prof. Marcel Zentner, PhD, Innsbruck University. The
+        GEMS introduces a scientifically validated process to reliably measure
+        musically evoked emotions. The GEMS will be amended and updated from
+        time to time, following the results of its application in research and
+        practice. The GEMS is protected by copyright laws worldwide. Any
+        copying, communicating, disseminating, or making the GEMS otherwise
+        available, is prohibited without the express permission of Prof. Marcel
+        Zentner or his due representative.
+      </div>
     </div>
   );
 }

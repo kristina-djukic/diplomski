@@ -6,6 +6,7 @@ export default function SongCard({
   emotions = [],
   initialResponse = {},
   onAnswer,
+  isUnanswered,
 }) {
   const emptyRatings = emotions.reduce((acc, e) => {
     acc[e.id] = null;
@@ -16,7 +17,7 @@ export default function SongCard({
     initialResponse.knows != null ? initialResponse.knows : null
   );
   const [score, setScore] = useState(
-    initialResponse.score != null ? initialResponse.score : 0
+    initialResponse.score != null ? initialResponse.score : null
   );
   const [hoverScore, setHoverScore] = useState(0);
   const [emotionRatings, setEmotionRatings] = useState(
@@ -53,7 +54,19 @@ export default function SongCard({
   const disabledClass = knows === false ? "disabled-section" : "";
 
   return (
-    <div className="player-card p-4" style={{ position: "relative" }}>
+    <div
+      className="player-card p-4"
+      id={`song-card-${song.id}`}
+      style={{
+        position: "relative",
+        ...(isUnanswered
+          ? {
+              border: "3px solid #dc3545",
+              boxShadow: "0 0 12px #dc3545",
+            }
+          : {}),
+      }}
+    >
       <div className="row g-4 align-items-center">
         {/* video */}
         <div className="col-12 col-md-6">
